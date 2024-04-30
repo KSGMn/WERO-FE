@@ -1,0 +1,35 @@
+/* CustomButton.css */
+.custom-btn {
+  border: 2px solid #6c757d; /* 버튼 테두리 색상 설정 */
+  color: black; /* 텍스트 색상 설정 */
+  width: 80px; /* 버튼 너비 설정 */
+  margin: 8px; /* 버튼 간격 설정 */
+}
+
+.custom-btn-click {
+  border: 2px solid #6c757d; /* 버튼 테두리 색상 설정 */
+  background-color: #6c757d; /* 기본 배경색은 투명 */
+  color: white; /* 텍스트 색상 설정 */
+  width: 80px; /* 버튼 너비 설정 */
+  margin: 8px; /* 버튼 간격 설정 */
+}
+
+.custom-btn:hover {
+  background-color: #6c757d;
+  color: white;
+}
+
+.custom-btn-click:hover {
+  background-color: #6c757d;
+  color: white;
+}
+
+.el-btn {
+  width: 80px; /* 버튼 너비 설정 */
+  margin: 8px; /* 버튼 간격 설정 */
+}
+
+.el-btn:hover {
+  background-color: #6c757d;
+  color: white;
+}
