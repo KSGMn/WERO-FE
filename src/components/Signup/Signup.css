@@ -1,0 +1,131 @@
+.signup-wrapper {
+  width: 500px;
+  height: auto;
+  border: 1px solid #aacdff;
+  box-shadow: 7px 7px 39px rgba(0, 104, 255, 0.25);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.error-message {
+  margin-top: 5px;
+  color: red;
+  font-size: 12px;
+  padding-left: 10px;
+}
+
+.success-message {
+  margin-top: 5px;
+  color: blue;
+  font-size: 12px;
+  padding-left: 10px;
+}
+
+h3 {
+  font-size: 32px;
+  color: #0068ff;
+  font-weight: bold;
+  width: 380px;
+  margin-bottom: 40px;
+}
+
+.signup-inputbox {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  background-color: transparent !important;
+}
+
+.signup-input[type="email"],
+.signup-input[type="cfNumber"],
+.signup-input[type="id"],
+.signup-input[type="text"],
+.signup-input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  outline: none;
+  transition: border-bottom-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.signup-input[type="email"]:focus,
+.signup-input[type="cfNumber"]:focus,
+.signup-input[type="id"]:focus,
+.signup-input[type="text"]:focus,
+.signup-input[type="password"]:focus {
+  border-bottom: 1px solid #aacdff;
+  box-shadow: 0px 6px 10px -3px rgba(0, 104, 255, 0.25);
+}
+
+.inputbox-container input {
+  flex-grow: 1; /* Allow input to fill space */
+  border: none;
+  outline: none;
+  padding: 10px;
+  margin-top: 5px;
+  border-bottom: 1px solid #ccc; /* Apply the underline to the input */
+}
+
+.signup-input[type="email"],
+.signup-input[type="cfNumber"],
+.signup-input[type="id"],
+.signup-input[type="text"],
+.signup-input[type="password"]::placeholder {
+  color: #797979;
+  font-size: 16px;
+}
+
+.check-button {
+  background-color: transparent;
+  color: #aacdff;
+  font-size: 12px;
+  position: absolute;
+  right: 12px;
+  margin-top: 18px;
+  border: none;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.disable-check-button {
+  background-color: transparent;
+  color: #ccc;
+  font-size: 12px;
+  position: absolute;
+  right: 12px;
+  margin-top: 18px;
+  border: none;
+  pointer-events: none;
+}
+
+.signup-submit-btn:disabled {
+  background-color: #ccc;
+  border: none;
+}
+
+.signup-input[type="checkbox"] {
+  margin-right: 10px;
+  height: 100;
+}
+
+.gender {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
