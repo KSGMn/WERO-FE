@@ -40,6 +40,14 @@ h3 {
   margin-bottom: 20px;
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  background-color: transparent !important;
+}
+
 .signup-input[type="email"],
 .signup-input[type="cfNumber"],
 .signup-input[type="id"],

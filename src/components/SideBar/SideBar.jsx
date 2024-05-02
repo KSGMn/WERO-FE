@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { SideBarData, SideBarIcon } from "./SideBarData";
 import "./SideBar.css";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../../context/UserContext";
+import { AuthContext, useUser } from "../../context/AuthContext";
 
 const SideBar = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -13,15 +13,11 @@ const SideBar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
-  const { user } = useUser();
-
-  console.log(user.User);
+  const { user } = useContext(AuthContext);
 
   return (
     <>
-      <div
-        className={`Sidebar ${isSidebarCollapsed ? "SidebarCollapsed" : ""}`}
-      >
+      <div className={`Sidebar ${isSidebarCollapsed ? "SidebarCollapsed" : ""}`}>
         <span className="close-btn text-white text-end m-2">
           {/* x아이콘 */}
           {SideBarIcon(toggleSidebar)[1].icon}
@@ -55,18 +51,12 @@ const SideBar = () => {
         {/* 프로필 디자인2 */}
         {/* ----------------------------------------------------------------- */}
         <div className="container p-2 mb-3">
-          {user === null || user.User === undefined ? (
+          {user.user_id === null || user.user_id === undefined || user.user_id === "" ? (
             <div className="d-flex flex-row justify-content-center ">
-              <div
-                className="sidebar-login-btn btn text-white"
-                onClick={() => navigate("/login")}
-              >
+              <div className="sidebar-login-btn btn text-white" onClick={() => navigate("/login")}>
                 Login
               </div>
-              <div
-                className="sidebar-signup-btn btn text-white"
-                onClick={() => navigate("/signup")}
-              >
+              <div className="sidebar-signup-btn btn text-white" onClick={() => navigate("/signup")}>
                 SignUp
               </div>
             </div>
@@ -97,10 +87,7 @@ const SideBar = () => {
                   navigate("/mypage");
                 }}
               />
-              <div
-                className="profile-text"
-                style={{ flex: 70, maxWidth: "70%" }}
-              >
+              <div className="profile-text" style={{ flex: 70, maxWidth: "70%" }}>
                 <div
                   className="text-white"
                   style={{
@@ -109,7 +96,7 @@ const SideBar = () => {
                     overflow: "hidden",
                   }}
                 >
-                  {user.User.userName}
+                  {user.userName}
                 </div>
                 <div
                   className="text-white"
@@ -119,7 +106,7 @@ const SideBar = () => {
                     overflow: "hidden",
                   }}
                 >
-                  {user.User.bio}
+                  {user.bio}
                 </div>
               </div>
             </div>
@@ -129,11 +116,7 @@ const SideBar = () => {
 
         <ul className="SidebarList">
           {SideBarData.map((val, key) => (
-            <li
-              key={key}
-              className="SidebarItem"
-              onClick={() => (window.location.pathname = val.link)}
-            >
+            <li key={key} className="SidebarItem" onClick={() => (window.location.pathname = val.link)}>
               <div className="SidebarIcon">{val.icon}</div>
               <div className="SidebarTitle">{val.title}</div>
             </li>

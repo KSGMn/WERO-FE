@@ -1,17 +1,17 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import WeRo from "./pages/WeRo";
-import UserProvider from "./context/UserContext";
+import AuthProvider from "./context/AuthContext";
 import { BrowserRouter } from "react-router-dom";
 
 function App() {
   return (
     <div className="App">
-      <UserProvider>
+      <AuthProvider>
         <BrowserRouter>
           <WeRo />
         </BrowserRouter>
-      </UserProvider>
+      </AuthProvider>
     </div>
   );
 }

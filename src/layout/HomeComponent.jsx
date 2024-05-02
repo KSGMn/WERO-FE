@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import DesignGrid from "../components/DesignGrid/DesignGrid";
-import { useUser } from "../context/UserContext";
+import { AuthContext, useUser } from "../context/AuthContext";
 
 const HomeComponent = () => {
-  const { diary } = useUser();
+  const { diary } = useContext(AuthContext);
 
   return (
     <div className="peed ">

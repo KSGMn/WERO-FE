@@ -1,13 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import DesignGrid from "../components/DesignGrid/DesignGrid";
-import { useUser } from "../context/UserContext";
+import { AuthContext, useUser } from "../context/AuthContext";
 
 const LikeComponent = () => {
-  const { diary, user } = useUser();
+  const { user, diary } = useContext(AuthContext);
 
-  const userLikeDiaries = diary.filter(
-    (d) => d.isLiked === true && d.user_id === user.User.user_id
-  );
+  const userLikeDiaries = diary.filter((d) => d.isLiked === true && d.user_id === user.user_id);
 
   return (
     <div className="diaries-like">

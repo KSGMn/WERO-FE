@@ -32,7 +32,7 @@ h3 {
   margin-bottom: 20px;
 }
 
-.login-input[type="email"],
+.login-input[type="id"],
 .login-input[type="text"],
 .login-input[type="password"] {
   width: 100%;
@@ -44,13 +44,13 @@ h3 {
   transition: border-bottom-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.login-input[type="email"]:focus,
+.login-input[type="id"]:focus,
 .login-input[type="password"]:focus {
   border-bottom: 1px solid #aacdff;
   box-shadow: 0 2px 5px -1px rgba(170, 205, 255, 0.5);
 }
 
-.login-input[type="email"],
+.login-input[type="id"],
 .login-input[type="password"]::placeholder {
   color: #797979;
   font-size: 16px;
