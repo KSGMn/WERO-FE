@@ -1,0 +1,60 @@
+/* styles.css */
+.modal-content {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid #ccc;
+  background: #fff;
+  overflow: auto;
+  border-radius: 4px;
+  outline: none;
+  padding: 20px;
+  width: 500px;
+  height: 600px;
+  position: fixed; /* 추가: CSS에서 위치를 조정하기 위해 필요 */
+  z-index: 1000; /* 추가: 오버레이 위에 내용이 나타나도록 z-index 설정 */
+}
+
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.75);
+  position: fixed; /* 전체 화면을 덮기 위해 필요 */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999; /* 내용보다 낮게 설정하여 오버레이가 뒤에 위치하도록 함 */
+}
+
+.modal-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-update-btn-icon,
+.modal-delete-btn-icon,
+.modal-close-btn-icon,
+.modal-save-btn-icon,
+.modal-pop-btn-icon {
+  cursor: pointer;
+  color: black;
+}
+
+.modal-update-btn-icon:hover,
+.modal-delete-btn-icon:hover,
+.modal-close-btn-icon:hover,
+.modal-save-btn-icon:hover,
+.modal-pop-btn-icon:hover {
+  cursor: pointer;
+  color: gray;
+}
+
+.modal-header-icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}

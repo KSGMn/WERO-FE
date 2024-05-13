@@ -1,32 +1,20 @@
-import React, { createContext, useState, ReactNode } from "react";
+import React, { createContext, useState, ReactNode, useEffect } from "react";
 import { Logout } from "../api";
 import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
 
 interface User {
+  email: string;
   user_id: string;
-  // 선택적으로 추가 필드를 여기에 정의할 수 있습니다.
-  userName?: string;
-  passWord?: string;
+  userName: string;
+  passWord: string;
   profile_image?: string;
   bio?: string;
   platform_type?: string;
 }
 
-interface DiaryEntry {
-  diary_id: string;
-  user_id: string;
-  isBookmarked: boolean;
-  isLiked: boolean;
-  content: string;
-  trackName: string;
-}
-
 interface AuthContextType {
   user: User;
   setUser: (user: User) => void;
-  diary: DiaryEntry[];
-  setDiary: (diary: DiaryEntry[]) => void;
   isLoggedIn: boolean;
   setLoggedIn: (isLoggedIn: boolean) => void;
   loading: boolean;
@@ -36,13 +24,11 @@ interface AuthContextType {
 
 // null 대신 적절한 초기값 제공
 const initialAuthState: AuthContextType = {
-  user: { user_id: "", userName: "", passWord: "", profile_image: "", bio: "", platform_type: "" },
+  user: { email: "", user_id: "", userName: "", passWord: "", profile_image: "", bio: "", platform_type: "" },
   setUser: () => {},
-  diary: [],
-  setDiary: () => {},
   isLoggedIn: false,
   setLoggedIn: () => {},
-  loading: true,
+  loading: false,
   setLoading: () => {},
   logout: async () => {
     try {
@@ -65,67 +51,24 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const userId = localStorage.getItem("user_id");
 
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [user, setUser] = useState<User>({
+    email: "이메일",
     user_id: userId ? userId : "",
     userName: "홍길동",
     passWord: "",
-    profile_image: "",
+    profile_image: "https://ondostudio.co.kr/wp-content/uploads/2019/12/01-3-7-683x1024.jpg",
     bio: "오늘..",
-    platform_type: "",
+    platform_type: "kakao",
   });
 
-  const [diary, setDiary] = useState<DiaryEntry[]>([
-    {
-      diary_id: "1",
-      user_id: "test",
-      isBookmarked: false,
-      isLiked: true,
-      content: "첫 일기",
-      trackName: "김광석 - 이등병의 편지",
-    },
-    {
-      diary_id: "2",
-      user_id: "test",
-      isBookmarked: true,
-      isLiked: false,
-      content: "두 번째 일기",
-      trackName: "김광석 - 일병의 편지",
-    },
-    {
-      diary_id: "3",
-      user_id: "1",
-      isBookmarked: false,
-      isLiked: false,
-      content: "세 번째 일기",
-      trackName: "김광석 - 상병의 편지",
-    },
-    {
-      diary_id: "4",
-      user_id: "2",
-      isBookmarked: true,
-      isLiked: false,
-      content: "세 번째 일기",
-      trackName: "투투 - 일과 이분의 일",
-    },
-    {
-      diary_id: "5",
-      user_id: "2",
-      isBookmarked: false,
-      isLiked: true,
-      content: "세 번째 일기",
-      trackName: "투투 - 이와 이분의 일",
-    },
-    {
-      diary_id: "6",
-      user_id: "3",
-      isBookmarked: true,
-      isLiked: true,
-      content: "세 번째 일기",
-      trackName: "투투 - 삼과 이분의 일",
-    },
-  ]);
+  useEffect(() => {
+    const userId = localStorage.getItem("user_id");
+    if (userId) {
+      setLoggedIn(true);
+    }
+  }, [userId]);
 
   const logout = async (): Promise<boolean> => {
     try {
@@ -142,15 +85,12 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
       return true;
     } catch (error) {
-      console.log("로그아웃 에러: ", error);
       return false;
     }
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, setUser, diary, setDiary, isLoggedIn, setLoggedIn, loading, setLoading, logout }}
-    >
+    <AuthContext.Provider value={{ user, setUser, isLoggedIn, setLoggedIn, loading, setLoading, logout }}>
       {children}
     </AuthContext.Provider>
   );

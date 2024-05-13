@@ -14,13 +14,7 @@ import {
 export const SideBarIcon = (toggleSidebar) => [
   { icon: <FontAwesomeIcon icon={faBars} /> }, //0
   {
-    icon: (
-      <FontAwesomeIcon
-        className="close-btn-icon fs-3"
-        icon={faXmark}
-        onClick={toggleSidebar}
-      />
-    ),
+    icon: <FontAwesomeIcon className="close-btn-icon fs-3" icon={faXmark} onClick={toggleSidebar} />,
   }, //1
   { icon: <FontAwesomeIcon icon={faHeadset} /> }, //2
 ];
@@ -34,12 +28,12 @@ export const SideBarData = [
   {
     title: "Likes",
     icon: <FontAwesomeIcon icon={faHeart} />,
-    link: "",
+    link: "/likes",
   },
   {
     title: "History",
     icon: <FontAwesomeIcon icon={faLayerGroup} />,
-    link: "",
+    link: "/history",
   },
   {
     title: "Category",
@@ -49,6 +43,6 @@ export const SideBarData = [
   {
     title: "Moody Match",
     icon: <FontAwesomeIcon icon={faStar} />,
-    link: "",
+    link: "/moody-match",
   },
 ];

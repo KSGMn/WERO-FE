@@ -15,7 +15,7 @@ const MyPage = () => {
     if (result) {
       navigate("/"); // 성공적으로 로그아웃 했으면 홈 페이지로 이동
     } else {
-      console.error("Failed to logout"); // 로그아웃 실패 처리
+      alert("로그아웃에 실패하였습니다.");
     }
   };
 
@@ -23,24 +23,46 @@ const MyPage = () => {
     <div className="container">
       <div className="profile d-flex flex-column align-items-center" style={{ height: "auto" }}>
         <div className="profile-image-container mb-3">
-          <img
-            src=""
-            alt=""
-            style={{
-              width: "120px",
-              height: "120px",
-              background: "black",
-              borderRadius: "50%",
-            }}
-          />
+          {user.profile_image !== "" ? (
+            <img
+              src={user.profile_image}
+              alt=""
+              style={{
+                width: "120px",
+                height: "120px",
+                background: "black",
+                borderRadius: "50%",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: "120px",
+                height: "120px",
+                background: "black",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontSize: "36px",
+                fontFamily: "Arial, sans-serif",
+                fontWeight: "bold",
+              }}
+            >
+              {user.userName}
+            </div>
+          )}
         </div>
         <div className="user-info text-center ">
-          <h4 className="text-black">{user.userName}</h4>
+          {user.profile_image !== "" ? <h4 className="text-black">{user.userName}</h4> : null}
           <p className="text-black m-0">{user.bio}</p>
         </div>
       </div>
       <div className="d-flex flex-row justify-content-center">
-        <div className="el-btn btn">Edit</div>
+        <div className="el-btn btn" onClick={() => navigate("/mypage/edit")}>
+          Edit
+        </div>
         <div className="el-btn btn" onClick={() => handleLogout()}>
           Logout
         </div>

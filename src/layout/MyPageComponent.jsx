@@ -6,10 +6,7 @@ import LikeComponent from "./LikeComponent";
 const MyPageComponent = () => {
   return (
     <div className="mypage">
-      <MyPage
-        HistoryPage={<HistoryComponent />}
-        LikesPage={<LikeComponent />}
-      />
+      <MyPage HistoryPage={<HistoryComponent />} LikesPage={<LikeComponent />} />
     </div>
   );
 };

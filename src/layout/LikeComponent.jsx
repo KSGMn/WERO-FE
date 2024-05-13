@@ -1,15 +1,22 @@
 import React, { useContext } from "react";
 import DesignGrid from "../components/DesignGrid/DesignGrid";
 import { AuthContext, useUser } from "../context/AuthContext";
+import { useFeeds } from "../context/FeedContext";
 
 const LikeComponent = () => {
-  const { user, diary } = useContext(AuthContext);
+  const { LikeFeeds, toggleLike, loading } = useFeeds();
 
-  const userLikeDiaries = diary.filter((d) => d.isLiked === true && d.user_id === user.user_id);
+  if (loading) {
+    return <div className="center-message"></div>;
+  }
+
+  if (LikeFeeds.length === 0 && loading === false) {
+    return <div className="center-message">좋아하는 피드가 없습니다.</div>;
+  }
 
   return (
     <div className="diaries-like">
-      <DesignGrid diary={userLikeDiaries} />
+      <DesignGrid feeds={LikeFeeds} toggleLike={toggleLike} />
     </div>
   );
 };
