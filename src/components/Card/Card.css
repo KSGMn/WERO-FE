@@ -82,6 +82,18 @@
   height: auto;
 }
 
+.input-content-with-placeholder-read {
+  font-size: 1rem;
+  border: none;
+  background-color: lightgrey;
+  color: white;
+  outline: none;
+  padding: 4px 8px;
+  text-align: center;
+  height: auto;
+  cursor: pointer;
+}
+
 .input-content-with-placeholder::placeholder {
   color: white;
   background-color: lightgrey;

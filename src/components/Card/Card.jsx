@@ -88,7 +88,7 @@ const Card = ({
   const renderContent = () => {
     return (
       <span className="card-content" style={cardStyle} onClick={cardClickHandler}>
-        <input ref={inputRef} className="input-content-with-placeholder" type="text" value={content} readOnly />
+        <input ref={inputRef} className="input-content-with-placeholder-read" type="text" value={content} readOnly />
       </span>
     );
   };
