@@ -58,9 +58,7 @@ const SideBar = () => {
                     marginLeft: "8px",
                     cursor: "pointer",
                   }}
-                  onClick={() => {
-                    navigate("/mypage");
-                  }}
+                  onClick={() => (window.location.pathname = "/mypage")}
                 />
               ) : (
                 <div
@@ -79,9 +77,7 @@ const SideBar = () => {
                     fontSize: "12px", // 텍스트 크기 조절, 필요에 따라 조정
                     fontWeight: "bold",
                   }}
-                  onClick={() => {
-                    navigate("/mypage");
-                  }}
+                  onClick={() => (window.location.pathname = "/mypage")}
                 >
                   {user.userName}
                 </div>

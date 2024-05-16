@@ -10,12 +10,14 @@ import LoginComponent from "../layout/LoginComponent";
 import SignupComponent from "../layout/SignupComponent.tsx";
 import HistoryComponent from "../layout/HistoryComponent";
 import LikeComponent from "../layout/LikeComponent";
+import DiaryComponent from "../layout/DiaryComponent.jsx";
 import OauthComponent from "../components/OauthComponent.tsx";
 import ReadPostComponent from "../layout/ReadPostComponent.tsx";
 import MyPageEditComponent from "../layout/MyPageEditComponent.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
-import FeedProvider from "../context/FeedContext.tsx";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+
 import MoodyMatchComponent from "../layout/MoodyMatchComponent.jsx";
 
 const WeRo = () => {
@@ -30,14 +32,15 @@ const WeRo = () => {
           className="top-bar d-flex flex-row justify-content-between w-100"
           style={{ height: "70px", marginBottom: "50px", padding: "16px" }}
         >
-          <Link to="/">
-            <div className="home-btn btn d-flex align-items-center ms-3">Home</div>
+          <Link to="/" className="home-btn">
+            <div className="home-btn d-flex align-items-center ms-3">WeRo</div>
           </Link>
 
           {!hideComponents && (
             <div className="search-and-wirte me-3 d-flex align-items-center">
-              <Link to="/edit/-1">
-                <FontAwesomeIcon className="add-icon" icon={faPenToSquare} />
+              <Link to="/edit/-1" className="add-icon">
+                글쓰기
+                <FontAwesomeIcon className="ms-2" icon={faPlus} />
               </Link>
               <SearchBar />
             </div>
@@ -58,8 +61,18 @@ const WeRo = () => {
               <Route path="read/:id" element={<ReadPostComponent />} />
               <Route path="edit/:id" element={<ReadPostComponent />} />
             </Route>
-            <Route path="/history" element={<HistoryComponent />} />
-            <Route path="/likes" element={<LikeComponent />} />
+            <Route path="/diary" element={<DiaryComponent />}>
+              <Route path="read/:id" element={<ReadPostComponent />} />
+              <Route path="edit/:id" element={<ReadPostComponent />} />
+            </Route>
+            <Route path="/history" element={<HistoryComponent />}>
+              <Route path="read/:id" element={<ReadPostComponent />} />
+              <Route path="edit/:id" element={<ReadPostComponent />} />
+            </Route>
+            <Route path="/likes" element={<LikeComponent />}>
+              <Route path="read/:id" element={<ReadPostComponent />} />
+              <Route path="edit/:id" element={<ReadPostComponent />} />
+            </Route>
             <Route path="/mypage/edit" element={<MyPageEditComponent />} />
             <Route path="/login" element={<LoginComponent />} />
             <Route path="/signup" element={<SignupComponent />} />

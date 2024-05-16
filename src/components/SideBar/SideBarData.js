@@ -23,7 +23,7 @@ export const SideBarData = [
   {
     title: "Diary",
     icon: <FontAwesomeIcon icon={faBook} />,
-    link: "",
+    link: "/diary",
   },
   {
     title: "Likes",

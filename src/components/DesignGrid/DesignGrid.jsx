@@ -17,64 +17,32 @@ const DesignGrid = ({ feeds, toggleLike }) => {
     return <p>데이터가 없습니다.</p>;
   }
 
-  const cardClickHandler = (
-    feedId,
-    content,
-    trackName,
-    category,
-    createDate,
-    isLiked,
-    userId,
-    isRequesting,
-    setIsRequesting,
-    feedState,
+  let path = "";
 
-    setFeedState
-  ) => {
-    console.log("클릭한 일기 아이디", feedId, content, trackName, category, createDate, isLiked, userId);
-    navigate(`/read/${feedId}`, {
+  if (location.pathname === "/mypage") {
+    path = "/mypage";
+  }
+
+  if (location.pathname === "/diary") {
+    path = "/diary";
+  }
+  if (location.pathname === "/history") {
+    path = "/history";
+  }
+  if (location.pathname === "/likes") {
+    path = "/likes";
+  }
+
+  const cardClickHandler = (feedId, content, trackName, image, category, createDate, isLiked, userId) => {
+    navigate(`${path}/read/${feedId}`, {
       state: {
         content,
         trackName,
+        image,
         category,
         createDate,
         isLiked,
         userId,
-        isRequesting,
-        setIsRequesting,
-        feedState,
-        setFeedState,
-      },
-    });
-  };
-
-  const cardClickHandlerInMyPage = (
-    feedId,
-    content,
-    trackName,
-    category,
-    createDate,
-    isLiked,
-    userId,
-    isRequesting,
-    setIsRequesting,
-    feedState,
-
-    setFeedState
-  ) => {
-    console.log("클릭한 일기 아이디", feedId, content, trackName, category, createDate, isLiked, userId);
-    navigate(`/mypage/read/${feedId}`, {
-      state: {
-        content,
-        trackName,
-        category,
-        createDate,
-        isLiked,
-        userId,
-        isRequesting,
-        setIsRequesting,
-        feedState,
-        setFeedState,
       },
     });
   };
@@ -84,35 +52,25 @@ const DesignGrid = ({ feeds, toggleLike }) => {
       {feeds.length > 0 ? (
         feeds.map((feed, index) => (
           <Pin
-            key={feed.mainfeed_id}
-            mainfeed_id={feed.mainfeed_id}
+            key={feed.mainfeed_id || feed.diaryId}
+            id={feed.mainfeed_id || feed.diaryId}
             size={sizes[index % sizes.length]}
             isLiked={feed.liked}
-            content={feed.content}
-            trackName={feed.trackName}
+            content={feed.content || feed.diaryContent}
+            trackName={feed.trackName || feed.song}
+            image={feed.image}
             toggleLike={toggleLike}
-            cardClickHandler={
-              location.pathname.includes("/mypage")
-                ? () =>
-                    cardClickHandlerInMyPage(
-                      feed.mainfeed_id,
-                      feed.content,
-                      feed.trackName,
-                      feed.category,
-                      feed.create_date,
-                      feed.liked,
-                      feed.user_id
-                    )
-                : () =>
-                    cardClickHandler(
-                      feed.mainfeed_id,
-                      feed.content,
-                      feed.trackName,
-                      feed.category,
-                      feed.create_date,
-                      feed.liked,
-                      feed.user_id
-                    )
+            cardClickHandler={() =>
+              cardClickHandler(
+                feed.mainfeed_id,
+                feed.content,
+                feed.trackName,
+                feed.image,
+                feed.category,
+                feed.create_date,
+                feed.liked,
+                feed.user_id
+              )
             }
           />
         ))

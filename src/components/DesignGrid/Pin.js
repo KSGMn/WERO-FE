@@ -6,10 +6,11 @@ const Pin = (props) => {
   return (
     <div className={`${pinClass} d-flex`}>
       <Card
-        mainfeed_id={props.mainfeed_id}
+        id={props.id}
         isLiked={props.isLiked}
         content={props.content}
         trackName={props.trackName}
+        image={props.image}
         cardClickHandler={props.cardClickHandler}
         toggleLike={props.toggleLike}
       />

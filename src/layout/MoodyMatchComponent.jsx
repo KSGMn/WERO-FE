@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import Card from "../components/Card/Card";
 import { useFeeds } from "../context/FeedContext";
 import { AuthContext } from "../context/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart as fasHeart, faXmark, faRotateLeft, faL } from "@fortawesome/free-solid-svg-icons";
-import { faBookmark as farBookmark, faHeart as farHeart } from "@fortawesome/free-regular-svg-icons";
-import { transform } from "typescript";
+import { faHeart as fasHeart, faXmark, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as farHeart } from "@fortawesome/free-regular-svg-icons";
 
 const MoodyMatchComponent = () => {
   const { MoodyMatchFeeds, toggleLike, loading } = useFeeds();
@@ -13,20 +12,24 @@ const MoodyMatchComponent = () => {
   const [likedStates, setLikedStates] = useState(Array(MoodyMatchFeeds.length).fill(false));
   const [moodyIndex, setMoodyIndex] = useState(0);
 
-  console.log(MoodyMatchFeeds);
+  if (MoodyMatchFeeds === undefined) {
+    return <div className="center-message">피드를 불러오지 못했습니다.</div>;
+  }
 
-  // useEffect(() => {
-  //   // 좋아요 상태를 현재 피드 인덱스에 맞게 설정
-  //   if (MoodyMatchFeeds.length > 0) {
-  //     setLikedStates((prevStates) => {
-  //       const newStates = [...prevStates];
-  //       newStates[moodyIndex] = MoodyMatchFeeds[moodyIndex].liked;
-  //       return newStates;
-  //     });
-  //   }
-  // }, [moodyIndex, MoodyMatchFeeds]);
+  if (loading) {
+    return <div className="center-message"></div>;
+  }
+
+  if (MoodyMatchFeeds.length === 0 && loading === false) {
+    return <div className="center-message">생성된 피드가 없습니다.</div>;
+  }
+
+  if (moodyIndex === MoodyMatchFeeds.length) {
+    return <div className="center-message">모든 피드를 좋아요 하셨습니다.</div>;
+  }
 
   const isLikeClickBtn = () => {
+    toggleLike(MoodyMatchFeeds[moodyIndex].mainfeed_id, MoodyMatchFeeds[moodyIndex].liked);
     setMoodyIndex(moodyIndex + 1);
     setLikedStates((prevStates) => {
       const newStates = [...prevStates];
@@ -39,22 +42,7 @@ const MoodyMatchComponent = () => {
     setMoodyIndex(moodyIndex + -1);
   };
 
-  if (loading) {
-    return <div className="center-message"></div>;
-  }
-
-  if (MoodyMatchFeeds.length === 0 && loading === false) {
-    return <div className="center-message">생성된 피드가 없습니다.</div>;
-  }
-
-  if (MoodyMatchFeeds.length === undefined) {
-    return <div className="center-message">피드를 불러오지 못했습니다.</div>;
-  }
-
-  if (moodyIndex === MoodyMatchFeeds.length) {
-    return <div className="center-message">모든 피드를 좋아요 하셨습니다.</div>;
-  }
-
+  console.log(MoodyMatchFeeds);
   const btnStyle = {
     borderRadius: "50%", // 원형 모양
     width: "90px", // 버튼의 너비
@@ -90,7 +78,7 @@ const MoodyMatchComponent = () => {
           mainfeed_id={MoodyMatchFeeds[moodyIndex].mainfeed_id}
           isLiked={MoodyMatchFeeds[moodyIndex].liked}
           content={MoodyMatchFeeds[moodyIndex].content}
-          trackName={MoodyMatchFeeds[moodyIndex].trackName}
+          image={MoodyMatchFeeds[moodyIndex].image}
           user_id={user.user_id}
           cardClickHandler={null}
           toggleLike={null}
@@ -110,9 +98,9 @@ const MoodyMatchComponent = () => {
         <button type="button" style={btnStyle}>
           <FontAwesomeIcon className="fs-3" icon={faXmark} />
         </button>
-        <button type="button" style={btnStyle}>
+        {/* <button type="button" style={btnStyle}>
           <FontAwesomeIcon className="fs-3" icon={faRotateLeft} onClick={() => popBtn()} />
-        </button>
+        </button> */}
         <button type="button" className="fs-3" style={btnStyle} onClick={() => isLikeClickBtn()}>
           {renderInteractiveArea()}
         </button>

@@ -56,8 +56,6 @@ const Login = () => {
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("user_id", userId);
 
-      console.log(`유저아이디: ${userId}`);
-
       setError(false);
       setCookie("accessToken", token, { expires, path: "/" });
       navigate("/");

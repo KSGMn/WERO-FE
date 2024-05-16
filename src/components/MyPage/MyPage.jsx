@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./MyPage.css";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
@@ -19,19 +19,24 @@ const MyPage = () => {
     }
   };
 
+  const encodedFileName = "%E1%84%83%E1%85%A1%E1%84%8B%E1%85%AE%E1%86%AB%E1%84%85%E1%85%A9%E1%84%83%E1%85%B3.jpeg";
+  const decodedFileName = decodeURIComponent(encodedFileName);
+  const imageUrl = `http://localhost:8080/uploads/${decodedFileName}`;
+
   return (
     <div className="container">
       <div className="profile d-flex flex-column align-items-center" style={{ height: "auto" }}>
         <div className="profile-image-container mb-3">
           {user.profile_image !== "" ? (
             <img
-              src={user.profile_image}
+              src={imageUrl}
               alt=""
               style={{
                 width: "120px",
                 height: "120px",
-                background: "black",
+                //background: "black",
                 borderRadius: "50%",
+                objectFit: "cover",
               }}
             />
           ) : (

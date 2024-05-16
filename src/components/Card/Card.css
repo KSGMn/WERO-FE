@@ -1,5 +1,4 @@
 .card {
-  background-color: transparent;
   border: none;
   border-radius: 8px;
   width: 100%; /* Adjust width as needed */
@@ -13,7 +12,16 @@
 .card-header {
   display: flex;
   flex-direction: column;
-  height: 80%;
+  height: 100%;
+  border: none;
+  border-radius: 10px;
+}
+
+.card-header-diary {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: none;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 }
@@ -21,16 +29,22 @@
 .card-content {
   display: flex;
   font-size: 1.2rem; /* Adjust font-size as needed */
-  height: 80%;
+  height: 100%;
   align-items: center;
   justify-content: center;
+}
+
+.card-content-text {
+  background-color: lightgrey;
+  padding: 4px 8px;
+  color: white;
 }
 
 .card-icons {
   display: flex;
   justify-content: end;
   gap: 8px; /* Adjust spacing between icons as needed */
-  height: 20%;
+  height: 30px;
 }
 
 .icon-button {
@@ -42,9 +56,10 @@
 .card-title {
   display: flex;
   height: 20%;
-  background: #3f5060;
+  background: #2f4050;
   align-items: center;
   justify-content: center;
+  border: none;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   margin: 0;
@@ -56,8 +71,20 @@
   color: white;
 }
 
+.input-content-with-placeholder {
+  font-size: 1rem;
+  border: none;
+  background-color: lightgrey;
+  color: white;
+  outline: none;
+  padding: 4px 8px;
+  text-align: center;
+  height: auto;
+}
+
 .input-content-with-placeholder::placeholder {
-  color: black;
+  color: white;
+  background-color: lightgrey;
 }
 
 .input-title-with-placeholder::placeholder {
@@ -66,4 +93,33 @@
 
 .hidden-but-occupy-space {
   visibility: hidden;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  display: inline-block;
+}
+
+.icon::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: white;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+.like-icon-true {
+  color: red;
+  stroke: none;
+}
+
+.like-icon-false {
+  color: black;
 }

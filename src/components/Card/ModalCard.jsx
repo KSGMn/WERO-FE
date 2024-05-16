@@ -8,7 +8,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { feedAddLike, feedDeleteLike } from "../../api";
 import { backgroundColorSelector, backgroundImageSelector } from "../Modal/BackgroundSelector";
 
-const Card = ({
+const ModalCard = ({
   id,
   isLiked,
   content,
@@ -26,6 +26,9 @@ const Card = ({
   // const [isTitle, setTitle] = useState(trackName);
   const location = useLocation();
   const [isRequesting, setIsRequesting] = useState(false);
+
+  //const toggleBookmark = () => setBookmarked(!Bookmarked);
+  const { user } = useContext(AuthContext);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -37,9 +40,6 @@ const Card = ({
       inputRef.current.style.width = `${widthLength + 5}ch`;
     }
   }, [content, location.pathname]);
-
-  //const toggleBookmark = () => setBookmarked(!Bookmarked);
-  const { user } = useContext(AuthContext);
 
   const getToggleLikeFunction = () => {
     if (isRequesting) return; // 이미 요청 중이면 무시
@@ -78,14 +78,58 @@ const Card = ({
   };
 
   const cardStyle = {
-    cursor: isAddMode || isUpdateMode || isReadMode || isMoodyMatchMode ? "defaul" : "pointer",
+    cursor: isAddMode || isUpdateMode || isReadMode || isMoodyMatchMode ? "default" : "pointer",
   };
 
   const renderTitle = () => {
+    // const handleTitleChange = (event) => {
+    //   setTitle(event.target.value); // 상태 업데이트 함수
+    // };
+    if (isAddMode) {
+      return (
+        <input
+          className={"input-title-with-placeholder"}
+          type="text"
+          placeholder={"제목을 입력하세요"}
+          value={trackName}
+          onChange={(e) => handleTrackNameChange(e.target.value)}
+        />
+      );
+    } else if (isUpdateMode) {
+      return <input type="text" value={trackName} onChange={(e) => handleTrackNameChange(e.target.value)} />;
+    }
     return <p>{trackName}</p>;
   };
 
   const renderContent = () => {
+    // const handleContentChange = (event) => {
+    //   setContent(event.target.value); // 상태 업데이트 함수
+    // };
+    if (isAddMode) {
+      return (
+        <div className="card-content">
+          <input
+            ref={inputRef}
+            className="input-content-with-placeholder"
+            type="text"
+            placeholder="내용을 입력하세요"
+            onChange={(e) => handleContentChange(e.target.value)}
+          />
+        </div>
+      );
+    } else if (isUpdateMode) {
+      return (
+        <div className="card-content">
+          <input
+            ref={inputRef}
+            className="input-content-with-placeholder"
+            type="text"
+            value={content}
+            onChange={(e) => handleContentChange(e.target.value)}
+          />
+        </div>
+      );
+    }
     return (
       <span className="card-content" style={cardStyle} onClick={cardClickHandler}>
         <input ref={inputRef} className="input-content-with-placeholder" type="text" value={content} readOnly />
@@ -118,4 +162,4 @@ const Card = ({
   );
 };
 
-export default Card;
+export default ModalCard;
