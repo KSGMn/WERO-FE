@@ -33,7 +33,7 @@ const DesignGrid = ({ feeds, toggleLike }) => {
     path = "/likes";
   }
 
-  const cardClickHandler = (feedId, content, trackName, image, category, createDate, isLiked, userId) => {
+  const cardClickHandler = (feedId, content, trackName, image, category, createDate, isLiked, userId, isBookmarked) => {
     navigate(`${path}/read/${feedId}`, {
       state: {
         content,
@@ -43,6 +43,7 @@ const DesignGrid = ({ feeds, toggleLike }) => {
         createDate,
         isLiked,
         userId,
+        isBookmarked,
       },
     });
   };
@@ -62,16 +63,18 @@ const DesignGrid = ({ feeds, toggleLike }) => {
             toggleLike={toggleLike}
             cardClickHandler={() =>
               cardClickHandler(
-                feed.mainfeed_id,
-                feed.content,
-                feed.trackName,
+                feed.mainfeed_id || feed.diaryId,
+                feed.content || feed.diaryContent,
+                feed.trackName || feed.song,
                 feed.image,
-                feed.category,
+                feed.category || feed.emotion,
                 feed.create_date,
                 feed.liked,
-                feed.user_id
+                feed.user_id || feed.userId,
+                feed.isBookmarked
               )
             }
+            isBookmarked={feed.isBookmarked}
           />
         ))
       ) : (

@@ -19,8 +19,9 @@ const Card = ({
   toggleLike,
   handleContentChange,
   handleTrackNameChange,
+  isBookmarked,
 }) => {
-  //const [Bookmarked, setBookmarked] = useState(isBookmarked);
+  const [Bookmarked, setBookmarked] = useState(isBookmarked);
   const [Liked, setLiked] = useState(isLiked);
   // const [isContent, setContent] = useState(content);
   // const [isTitle, setTitle] = useState(trackName);
@@ -65,16 +66,23 @@ const Card = ({
       isAddMode || isUpdateMode || isMoodyMatchMode ? "card-icons hidden-but-occupy-space" : "card-icons";
     const iconStyle = Liked ? { color: "red" } : {};
 
-    return (
-      <div className={className}>
-        {/* <button aria-label="Bookmark" className="icon-button" onClick={toggleBookmark}>
-          <FontAwesomeIcon icon={isBookmarked ? fasBookmark : farBookmark} />
-        </button> */}
-        <button aria-label="Like" className="icon-button" onClick={getToggleLikeFunction}>
-          <FontAwesomeIcon icon={Liked ? fasHeart : farHeart} style={iconStyle} />
-        </button>
-      </div>
-    );
+    if (location.pathname.includes("/diary")) {
+      return (
+        <div className={className}>
+          <button aria-label="Bookmark" className="icon-button" onClick={null}>
+            <FontAwesomeIcon icon={Bookmarked === 1 ? fasBookmark : farBookmark} />
+          </button>
+        </div>
+      );
+    } else {
+      return (
+        <div className={className}>
+          <button aria-label="Like" className="icon-button" onClick={getToggleLikeFunction}>
+            <FontAwesomeIcon icon={Liked ? fasHeart : farHeart} style={iconStyle} />
+          </button>
+        </div>
+      );
+    }
   };
 
   const cardStyle = {

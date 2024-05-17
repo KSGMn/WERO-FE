@@ -54,7 +54,7 @@ const Login = () => {
 
       setUser({ ...user, user_id: userId });
       localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("user_id", userId);
+      //localStorage.setItem("user_id", userId);
 
       setError(false);
       setCookie("accessToken", token, { expires, path: "/" });
@@ -75,6 +75,7 @@ const Login = () => {
 
   const onSnsSignInButtonClickHandler = (type: "kakao" | "naver") => {
     window.location.href = SNS_SIGN_IN_URL(type);
+    localStorage.setItem("isLoggedIn", "true");
   };
 
   const handleGoogleLogin = () => {

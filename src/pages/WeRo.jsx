@@ -38,10 +38,17 @@ const WeRo = () => {
 
           {!hideComponents && (
             <div className="search-and-wirte me-3 d-flex align-items-center">
-              <Link to="/edit/-1" className="add-icon">
-                글쓰기
-                <FontAwesomeIcon className="ms-2" icon={faPlus} />
-              </Link>
+              {location.pathname.includes("/diary") ? (
+                <Link to="/diary/edit/-1" className="add-icon">
+                  일기쓰기
+                  <FontAwesomeIcon className="ms-2" icon={faPlus} />
+                </Link>
+              ) : (
+                <Link to="/edit/-1" className="add-icon">
+                  글쓰기
+                  <FontAwesomeIcon className="ms-2" icon={faPlus} />
+                </Link>
+              )}
               <SearchBar />
             </div>
           )}
@@ -77,7 +84,7 @@ const WeRo = () => {
             <Route path="/login" element={<LoginComponent />} />
             <Route path="/signup" element={<SignupComponent />} />
             <Route path="/moody-match" element={<MoodyMatchComponent />} />
-            <Route path="/oauth-reponse/:token/:expirationTime" element={<OauthComponent />} />
+            <Route path="/auth/oauth2-response/:token/:expirationTime" element={<OauthComponent />} />
           </Routes>
         </div>
       </div>

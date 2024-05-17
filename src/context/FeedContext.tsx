@@ -28,6 +28,8 @@ interface Diary {
   diaryContent: string;
   emotion: string;
   song: string;
+  userId: string;
+  isBookmarked: number;
 }
 
 type FeedContextType = {
@@ -68,6 +70,22 @@ export interface ApiDiaryResponse {
   list: Diary[];
 }
 
+export interface ApiOneDiaryResponse {
+  code: string;
+  message: string;
+  diaryId: string;
+  diaryContent: string;
+  emotion: string;
+  song: string;
+  userId: string;
+  isBookmarked: string;
+}
+
+export interface DefaultResponse {
+  code: string;
+  message: string;
+}
+
 interface LikeResponse {
   code: string;
   message: string;
@@ -90,7 +108,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
   const accessToken = Cookies.get("accessToken");
 
   useEffect(() => {
-    if (accessToken) {
+    if (accessToken && user) {
       if (location.pathname === "/") {
         const findAllFeedResponse = (newFeeds: ApiResponse) => {
           if (newFeeds) {
@@ -139,7 +157,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
     } else {
       setLoading(true);
     }
-  }, [location.pathname]);
+  }, [location.pathname, user]);
 
   const toggleLike = async (mainfeed_id: number, isLiked: boolean) => {
     if (!feeds || !MyFeeds || !LikeFeeds) return;

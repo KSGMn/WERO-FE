@@ -13,7 +13,9 @@ const SideBar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
+
+  console.log(`유저${user.user_id}`, loading);
 
   return (
     <>

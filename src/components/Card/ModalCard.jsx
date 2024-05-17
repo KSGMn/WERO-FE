@@ -19,8 +19,9 @@ const ModalCard = ({
   toggleLike,
   handleContentChange,
   handleTrackNameChange,
+  isBookmarked,
 }) => {
-  //const [Bookmarked, setBookmarked] = useState(isBookmarked);
+  const [Bookmarked, setBookmarked] = useState(isBookmarked);
   const [Liked, setLiked] = useState(isLiked);
   // const [isContent, setContent] = useState(content);
   // const [isTitle, setTitle] = useState(trackName);
@@ -65,16 +66,23 @@ const ModalCard = ({
       isAddMode || isUpdateMode || isMoodyMatchMode ? "card-icons hidden-but-occupy-space" : "card-icons";
     const iconStyle = Liked ? { color: "red" } : {};
 
-    return (
-      <div className={className}>
-        {/* <button aria-label="Bookmark" className="icon-button" onClick={toggleBookmark}>
-          <FontAwesomeIcon icon={isBookmarked ? fasBookmark : farBookmark} />
-        </button> */}
-        <button aria-label="Like" className="icon-button" onClick={getToggleLikeFunction}>
-          <FontAwesomeIcon icon={Liked ? fasHeart : farHeart} style={iconStyle} />
-        </button>
-      </div>
-    );
+    if (location.pathname.includes("/diary")) {
+      return (
+        <div className={className}>
+          <button aria-label="Bookmark" className="icon-button" onClick={null}>
+            <FontAwesomeIcon icon={Bookmarked === 1 ? fasBookmark : farBookmark} />
+          </button>
+        </div>
+      );
+    } else {
+      return (
+        <div className={className}>
+          <button aria-label="Like" className="icon-button" onClick={getToggleLikeFunction}>
+            <FontAwesomeIcon icon={Liked ? fasHeart : farHeart} style={iconStyle} />
+          </button>
+        </div>
+      );
+    }
   };
 
   const cardStyle = {
@@ -88,6 +96,7 @@ const ModalCard = ({
     if (isAddMode) {
       return (
         <input
+          ref={inputRef}
           className={"input-title-with-placeholder"}
           type="text"
           placeholder={"제목을 입력하세요"}
@@ -96,9 +105,15 @@ const ModalCard = ({
         />
       );
     } else if (isUpdateMode) {
-      return <input type="text" value={trackName} onChange={(e) => handleTrackNameChange(e.target.value)} />;
+      return (
+        <input ref={inputRef} type="text" value={trackName} onChange={(e) => handleTrackNameChange(e.target.value)} />
+      );
     }
-    return <p>{trackName}</p>;
+    return (
+      <span className="card-content" style={cardStyle}>
+        <input ref={inputRef} className="input-content-with-placeholder" type="text" value={trackName} readOnly />
+      </span>
+    );
   };
 
   const renderContent = () => {
@@ -131,7 +146,7 @@ const ModalCard = ({
       );
     }
     return (
-      <span className="card-content" style={cardStyle} onClick={cardClickHandler}>
+      <span className="card-content" style={cardStyle}>
         <input ref={inputRef} className="input-content-with-placeholder" type="text" value={content} readOnly />
       </span>
     );

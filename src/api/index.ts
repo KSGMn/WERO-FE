@@ -14,9 +14,19 @@ import SignupResponseDto from "./response/auth/sign-up.response.dto";
 import FeedFindAllRequestDto from "./request/feed/feed-find-all.request.dto";
 import FeedFindAllResponseDto from "./response/feed/feed-find-all.response.dto";
 import Cookies from "js-cookie";
-import { ApiDiaryResponse, ApiOneResponse, ApiResponse } from "../context/FeedContext";
+import {
+  ApiDiaryResponse,
+  ApiOneDiaryResponse,
+  ApiOneResponse,
+  ApiResponse,
+  DefaultResponse,
+} from "../context/FeedContext";
 import CreateFeedRequestDto from "./request/feed/create-feed.request.dto";
 import UpdateFeedRequestDto from "./request/feed/update-feed.request.dto";
+import { ApiUserResponse } from "../context/AuthContext";
+import CreateDiaryRequestDto from "./request/diary/create-diary.request.dto";
+import UpdateDiaryRequestDto from "./request/diary/update-diary.request.dto";
+import UpdateUserRequestDto from "./request/user/update-user.request.dto";
 
 const responseHandler = <T>(response: AxiosResponse<any, any>) => {
   const responseBody: T = response.data;
@@ -34,7 +44,7 @@ const API_DOMAIN = `${DOMAIN}/api/v1`;
 
 //auth api
 
-export const SNS_SIGN_IN_URL = (type: "kakao" | "naver") => `$(API_DOMAIN)/auth/oauth2/${type}`;
+export const SNS_SIGN_IN_URL = (type: "kakao" | "naver") => `${API_DOMAIN}/auth/oauth2/${type}`;
 const LOG_OUT = () => `${API_DOMAIN}/auth/logout`;
 const SING_IN_URL = () => `${API_DOMAIN}/auth/sign-in`;
 const SIGN_UP_URL = () => `${API_DOMAIN}/auth/register`;
@@ -83,6 +93,33 @@ export const checkCertificationRequest = async (requestBody: CheckCertificationR
 };
 
 export const Logout = () => axios.post(LOG_OUT());
+
+//user profile api
+
+const GET_USER_URL = () => `${API_DOMAIN}/user/profile`;
+const UPDATE_USER_URL = () => `${API_DOMAIN}/user/update`;
+
+export const getUserProfile = async () => {
+  const result = await axios
+    .get(GET_USER_URL(), {
+      headers: headers,
+      withCredentials: true,
+    })
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as ApiUserResponse;
+};
+
+export const updateUserProfile = async (requestBody: UpdateUserRequestDto) => {
+  const result = await axios
+    .patch(UPDATE_USER_URL(), requestBody, {
+      headers: headers,
+      withCredentials: true,
+    })
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as ApiUserResponse;
+};
 
 //feed api
 
@@ -222,6 +259,10 @@ export const moodyMatchFeed = async (userId: string) => {
 
 //diary api
 export const FIND_ALL_DIARY_URL = () => `${API_DOMAIN}/diary/diaryList`;
+export const FIND_ONE_DIARY_URL = (diaryId: number) => `${API_DOMAIN}/diary/${diaryId}`;
+export const CREATE_DIARY_URL = () => `${API_DOMAIN}/diary`;
+export const UPDATE_DIARY_URL = (diaryId: number) => `${API_DOMAIN}/diary/${diaryId}`;
+export const DELETE_DIARY_URL = (diaryId: number) => `${API_DOMAIN}/diary/${diaryId}`;
 
 export const findAllDiary = async () => {
   const result = await axios
@@ -232,4 +273,48 @@ export const findAllDiary = async () => {
     .then(responseHandler)
     .catch(errorHandler);
   return result as ApiDiaryResponse;
+};
+
+export const findOneDiary = async (diaryId: number) => {
+  const result = await axios
+    .get(FIND_ONE_DIARY_URL(diaryId), {
+      headers: headers,
+      withCredentials: true,
+    })
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as ApiOneDiaryResponse;
+};
+
+export const createDiary = async (requestBody: CreateDiaryRequestDto) => {
+  const result = await axios
+    .post(CREATE_DIARY_URL(), requestBody, {
+      headers: headers,
+      withCredentials: true,
+    })
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as DefaultResponse;
+};
+
+export const updateDiary = async (requestBody: UpdateDiaryRequestDto, diaryId: number) => {
+  const result = await axios
+    .patch(UPDATE_DIARY_URL(diaryId), requestBody, {
+      headers: headers,
+      withCredentials: true,
+    })
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as DefaultResponse;
+};
+
+export const deleteDiary = async (diaryId: number) => {
+  const result = await axios
+    .delete(DELETE_DIARY_URL(diaryId), {
+      headers: headers,
+      withCredentials: true,
+    })
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as DefaultResponse;
 };

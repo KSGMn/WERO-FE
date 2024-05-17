@@ -7,12 +7,14 @@ import Modal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faPen, faTrash, faFloppyDisk, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import "../components/Modal/Modal.css";
-import { ApiOneResponse, useFeeds } from "../context/FeedContext";
-import { createFeed, deleteFeed, findOneFeed, updateFeed } from "../api";
+import { ApiOneDiaryResponse, ApiOneResponse, useFeeds } from "../context/FeedContext";
+import { createDiary, createFeed, deleteFeed, findOneDiary, findOneFeed, updateDiary, updateFeed } from "../api";
 import UpdateFeedRequestDto from "../api/request/feed/update-feed.request.dto";
 import CreateFeedRequestDto from "../api/request/feed/create-feed.request.dto";
 import ModalCard from "../components/Card/ModalCard";
 import { backgroundOptions, colorMap, imageMap } from "../components/Modal/BackgroundSelector";
+import CreateDiaryRequestDto from "../api/request/diary/create-diary.request.dto";
+import UpdateDiaryRequestDto from "../api/request/diary/update-diary.request.dto";
 
 // 모달을 마운트할 요소 설정
 Modal.setAppElement("#root");
@@ -29,7 +31,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
   const { user } = useContext(AuthContext);
   const { id } = useParams();
   const { state } = useLocation();
-  const { content, trackName, userId, image, isLiked, category } = state || {};
+  const { content, trackName, userId, image, isLiked, category, isBookmarked } = state || {};
 
   const [originalContent, setOriginalContent] = useState(content);
   const [originalTrackName, setOriginalTrackName] = useState(trackName);
@@ -37,6 +39,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
   const [originalEmotion, setOriginalEmotion] = useState(category);
   const [isContent, setIsContent] = useState(content);
   const [Liked, setLiked] = useState(isLiked);
+  const [Bookmarked, setBookmarked] = useState(isBookmarked);
   const [isTrackName, setIsTrackName] = useState(trackName);
   const [selectedEmotion, setSelectedEmotion] = useState(category ? category : "");
   const [selectedBackground, setSelectedBackground] = useState(image ? image : "white");
@@ -61,21 +64,34 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     if (location.pathname.includes("/read/") || location.pathname.includes("/edit/")) {
       setIsOpen(true);
     }
-    if (location.pathname.includes("/read/")) {
+    if (id === "-1") {
+      setIsLoading(false);
+      return;
+    }
+    if (location.pathname.startsWith("/read/")) {
       const findOneFeedResponse = (getFeed: ApiOneResponse) => {
         if (getFeed) {
           setIsContent(getFeed.data.content);
           setSelectedBackground(getFeed.data.image);
           setSelectedEmotion(getFeed.data.category);
           setLiked(getFeed.data.liked);
-          setIsLoading(false);
         }
       };
       findOneFeed(user.user_id, parseInt(id)).then(findOneFeedResponse);
     }
-    if (id === "-1") {
-      setIsLoading(false);
+    if (location.pathname.includes("/diary/read")) {
+      const findOneDiaryResponse = (getDiary: ApiOneDiaryResponse) => {
+        if (getDiary) {
+          setIsContent(getDiary.diaryContent);
+          setSelectedBackground("white");
+          setSelectedEmotion(getDiary.emotion);
+          setIsTrackName(getDiary.song);
+          setLiked(false);
+        }
+      };
+      findOneDiary(parseInt(id)).then(findOneDiaryResponse);
     }
+    setIsLoading(false);
   }, [location.pathname, Liked]);
 
   const loadingDiv = () => {
@@ -129,6 +145,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
 
   const onUpdatePage = () => {
     if (location.pathname.startsWith("/mypage/")) return navigate(`/mypage/edit/${id}`);
+    if (location.pathname.startsWith("/diary/")) return navigate(`/diary/edit/${id}`);
     return navigate(`/edit/${id}`);
   };
 
@@ -140,20 +157,25 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
   };
 
   const renderModalTitle = () => {
+    const titleName = location.pathname.includes("diary") ? "Diary" : "Feed";
+
     if (location.pathname.includes("/read/")) {
-      return <div className="fs-3">Feed</div>;
+      return <div className="fs-3">{titleName}</div>;
     } else if (location.pathname.includes(`/edit/${id}`)) {
       if (id === "-1") {
-        return <div className="fs-3">New Feed</div>;
+        return <div className="fs-3">{`New ${titleName}`}</div>;
       }
-      return <div className="fs-3">Edit Feed</div>;
+      return <div className="fs-3">{`Edit ${titleName}`}</div>;
     }
   };
 
   const saveBtn = () => {
-    if (location.pathname.includes("/edit/-1")) {
+    const pathName = location.pathname.includes("diary") ? "diary" : "feed";
+
+    if (location.pathname.includes("/edit/-1") && pathName === "feed") {
       if (isContent === "" || selectedBackground === "" || selectedEmotion === "") {
         alert("제목, 배경, 감정은 필수 내용입니다.");
+        return;
       } else {
         const createFeedsResponse = (newFeed: any) => {
           if (newFeed) {
@@ -170,19 +192,42 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
         createFeed(requestBody, user.user_id).then(createFeedsResponse);
         setIsConfirmModalOpen(true);
       }
-    } else {
-      if (
-        isContent === originalContent &&
-        selectedBackground === originalBackground &&
-        selectedEmotion === originalEmotion
-      ) {
+      return;
+    }
+
+    if (location.pathname.includes("/edit/-1") && pathName === "diary") {
+      if (isContent === "" || isTrackName === "" || selectedEmotion === "") {
+        alert("제목, 내용, 감정은 필수 내용입니다.");
+        return;
+      } else {
+        const createDiaryResponse = (newFeed: any) => {
+          if (newFeed) {
+            setIsContent(isContent);
+            setSelectedEmotion(selectedEmotion);
+            setIsTrackName(isTrackName);
+          }
+        };
+        const requestBody: CreateDiaryRequestDto = {
+          diaryContent: isContent,
+          emotion: selectedEmotion,
+          song: isTrackName,
+        };
+        createDiary(requestBody).then(createDiaryResponse);
+        setIsConfirmModalOpen(true);
+      }
+      return;
+    }
+
+    if (location.pathname.includes(`/edit/${id}`) && pathName === "feed") {
+      if (isContent === originalContent && isTrackName === originalTrackName && selectedEmotion === originalEmotion) {
         alert("변경 사항이 없습니다");
+        return;
       } else {
         const updateFeedResponse = (newFeed: any) => {
           if (newFeed) {
             setIsContent(isContent);
             setSelectedEmotion(selectedEmotion);
-            setSelectedBackground(selectedBackground);
+            setIsTrackName(isTrackName);
           }
         };
         const requestBody: UpdateFeedRequestDto = {
@@ -192,6 +237,34 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
         };
         updateFeed(requestBody, user.user_id, parseInt(id)).then(updateFeedResponse);
         navigate(-1);
+        return;
+      }
+    }
+
+    if (location.pathname.includes(`/edit/${id}`) && pathName === "diary") {
+      if (
+        isContent === originalContent &&
+        selectedBackground === originalBackground &&
+        selectedEmotion === originalEmotion
+      ) {
+        alert("변경 사항이 없습니다");
+        return;
+      } else {
+        const updateDiaryResponse = (newFeed: any) => {
+          if (newFeed) {
+            setIsContent(isContent);
+            setSelectedEmotion(selectedEmotion);
+            setSelectedBackground(selectedBackground);
+          }
+        };
+        const requestBody: UpdateDiaryRequestDto = {
+          diaryContent: isContent,
+          emotion: selectedEmotion,
+          song: isTrackName,
+        };
+        updateDiary(requestBody, parseInt(id)).then(updateDiaryResponse);
+        navigate(-1);
+        return;
       }
     }
   };
@@ -352,6 +425,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
                 toggleLike={toggleLike}
                 handleContentChange={handleContentChange}
                 handleTrackNameChange={handleTrackNameChange}
+                isBookmarked={Bookmarked}
               />
             </div>
           </Modal>
