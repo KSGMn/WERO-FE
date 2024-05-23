@@ -60,6 +60,7 @@ const ModalCard = ({
   const isUpdateMode = location.pathname.includes(`/edit/${id}`);
   const isReadMode = location.pathname.startsWith("/read/");
   const isMoodyMatchMode = location.pathname.includes("/moody-match");
+  const isDiaryMode = location.pathname.includes("diary");
 
   const renderInteractiveArea = () => {
     const className =
@@ -96,22 +97,30 @@ const ModalCard = ({
     if (isAddMode) {
       return (
         <input
-          ref={inputRef}
-          className={"input-title-with-placeholder"}
+          className={isDiaryMode ? "input-title-with-placeholder-diary" : "input-content-with-placeholder"}
           type="text"
           placeholder={"제목을 입력하세요"}
-          value={trackName}
           onChange={(e) => handleTrackNameChange(e.target.value)}
         />
       );
     } else if (isUpdateMode) {
       return (
-        <input ref={inputRef} type="text" value={trackName} onChange={(e) => handleTrackNameChange(e.target.value)} />
+        <input
+          type="text"
+          className={isDiaryMode ? "input-title-with-placeholder-diary" : "input-content-with-placeholder"}
+          value={trackName}
+          onChange={(e) => handleTrackNameChange(e.target.value)}
+        />
       );
     }
     return (
       <span className="card-content" style={cardStyle}>
-        <input ref={inputRef} className="input-content-with-placeholder" type="text" value={trackName} readOnly />
+        <input
+          className={isDiaryMode ? "input-title-with-placeholder-diary" : "input-content-with-placeholder"}
+          type="text"
+          value={trackName}
+          readOnly
+        />
       </span>
     );
   };
@@ -125,7 +134,7 @@ const ModalCard = ({
         <div className="card-content">
           <input
             ref={inputRef}
-            className="input-content-with-placeholder"
+            className={isDiaryMode ? "input-content-with-placeholder-diary" : "input-content-with-placeholder"}
             type="text"
             placeholder="내용을 입력하세요"
             onChange={(e) => handleContentChange(e.target.value)}
@@ -137,7 +146,7 @@ const ModalCard = ({
         <div className="card-content">
           <input
             ref={inputRef}
-            className="input-content-with-placeholder"
+            className={isDiaryMode ? "input-content-with-placeholder-diary" : "input-content-with-placeholder"}
             type="text"
             value={content}
             onChange={(e) => handleContentChange(e.target.value)}
@@ -147,7 +156,13 @@ const ModalCard = ({
     }
     return (
       <span className="card-content" style={cardStyle}>
-        <input ref={inputRef} className="input-content-with-placeholder" type="text" value={content} readOnly />
+        <input
+          ref={inputRef}
+          className={isDiaryMode ? "input-content-with-placeholder-diary" : "input-content-with-placeholder"}
+          type="text"
+          value={content}
+          readOnly
+        />
       </span>
     );
   };

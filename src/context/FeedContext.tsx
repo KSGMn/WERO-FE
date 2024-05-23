@@ -1,9 +1,11 @@
-import React, { ReactNode, createContext, useContext, useEffect, useState } from "react";
+import React, { ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
+  changeDiaryBookmark,
   feedAddLike,
   feedDeleteLike,
   findAllDiary,
   findAllFeed,
+  findAllReport,
   findLikeFeed,
   findMyFeed,
   moodyMatchFeed,
@@ -24,12 +26,20 @@ interface Feed {
 }
 
 interface Diary {
-  diaryId: number;
+  diaryId: string;
   diaryContent: string;
   emotion: string;
   song: string;
   userId: string;
   isBookmarked: number;
+  image: string;
+}
+
+interface ReportFeed {
+  reportId: number;
+  mainfeedId: number;
+  reportContent: string;
+  reportedTime: string;
 }
 
 type FeedContextType = {
@@ -43,9 +53,15 @@ type FeedContextType = {
   setLikeFeeds: React.Dispatch<React.SetStateAction<Feed[]>>;
   diaries: Diary[];
   setDiaries: React.Dispatch<React.SetStateAction<Diary[]>>;
+  reports: ReportFeed[];
+  setReports: React.Dispatch<React.SetStateAction<ReportFeed[]>>;
   loading: Boolean;
   setLoading: (arg: Boolean) => void;
   toggleLike: (arg: number, arg1: boolean) => {};
+  toggleBookmark: (arg: string) => {};
+  page: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+  loadMoreFeeds: () => void;
 };
 
 interface FeedProviderProps {
@@ -56,6 +72,12 @@ export interface ApiResponse {
   code: string;
   message: string;
   data: Feed[];
+}
+
+export interface ApiReportResponse {
+  code: string;
+  message: string;
+  data: ReportFeed[];
 }
 
 export interface ApiOneResponse {
@@ -79,6 +101,7 @@ export interface ApiOneDiaryResponse {
   song: string;
   userId: string;
   isBookmarked: string;
+  image: string;
 }
 
 export interface DefaultResponse {
@@ -94,43 +117,71 @@ interface LikeResponse {
 export const FeedContext = createContext<FeedContextType | undefined>(undefined);
 
 export const FeedProvider = ({ children }: FeedProviderProps) => {
+  const [token, setToken] = useState(Cookies.get("accessToken"));
   const [feeds, setFeeds] = useState<Feed[]>([]);
   const [MyFeeds, setMyFeeds] = useState<Feed[]>([]);
   const [MoodyMatchFeeds, setMoodyMatchFeeds] = useState<Feed[]>([]);
   const [LikeFeeds, setLikeFeeds] = useState<Feed[]>([]);
   const [diaries, setDiaries] = useState<Diary[]>([]);
+  const [reports, setReports] = useState<ReportFeed[]>([]);
   const [loading, setLoading] = useState<Boolean>(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(false);
 
   const { user } = useContext(AuthContext);
 
   const location = useLocation();
 
-  const accessToken = Cookies.get("accessToken");
-
   useEffect(() => {
-    if (accessToken && user) {
-      if (location.pathname === "/") {
-        const findAllFeedResponse = (newFeeds: ApiResponse) => {
-          if (newFeeds) {
-            setFeeds(newFeeds.data);
-            setLoading(false);
-          }
-        };
-        findAllFeed(user.user_id).then(findAllFeedResponse);
-      }
+    if (location.pathname === "/admin" && !initialLoad) {
+      const findAllReportResponse = (newReports: ApiReportResponse) => {
+        if (Array.isArray(newReports.data)) {
+          setReports((prevReports) => [...prevReports, ...newReports.data]);
+          setHasMore(newReports.data.length > 0);
+          setIsFetching(false);
+          setInitialLoad(true);
+        } else {
+          setHasMore(false);
+        }
+      };
+      findAllReport(page).then(findAllReportResponse);
+      setLoading(false);
+    }
+    if (location.pathname === "/" && !initialLoad) {
+      console.log(user);
+      const findAllFeedResponse = (newFeeds: ApiResponse) => {
+        if (Array.isArray(newFeeds.data)) {
+          setFeeds((prevFeeds) => [...prevFeeds, ...newFeeds.data]);
+          setHasMore(newFeeds.data.length > 0);
+          setIsFetching(false);
+          setInitialLoad(true);
+        } else {
+          setHasMore(false);
+        }
+      };
+      findAllFeed(user.user_id, page).then(findAllFeedResponse);
+      setLoading(false);
+    }
+    if (token && user.user_id) {
       if (location.pathname === "/mypage" || location.pathname === "/history") {
         const findMyFeedResponse = (newMyFeeds: ApiResponse) => {
           if (newMyFeeds) {
-            setMyFeeds(newMyFeeds.data);
+            setMyFeeds((prevFeeds) => [...prevFeeds, ...newMyFeeds.data]);
+
+            setHasMore(newMyFeeds.data.length > 0);
+            setIsFetching(false);
             setLoading(false);
           }
         };
-        findMyFeed(user.user_id).then(findMyFeedResponse);
+        findMyFeed(user.user_id, page).then(findMyFeedResponse);
       }
       if (location.pathname === "/mypage" || location.pathname === "/likes") {
         const findLikeFeedResponse = (newLikeFeeds: ApiResponse) => {
           if (newLikeFeeds) {
             setLikeFeeds(newLikeFeeds.data);
+            setIsFetching(false);
             setLoading(false);
           }
         };
@@ -140,6 +191,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
         const moodyMatchFeedResponse = (newMoodyMatchFeeds: ApiResponse) => {
           if (newMoodyMatchFeeds) {
             setMoodyMatchFeeds(newMoodyMatchFeeds.data);
+            setIsFetching(false);
             setLoading(false);
           }
         };
@@ -149,6 +201,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
         const findAllDiaryResponse = (newDiaries: ApiDiaryResponse) => {
           if (newDiaries) {
             setDiaries(newDiaries.list);
+            setIsFetching(false);
             setLoading(false);
           }
         };
@@ -157,7 +210,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
     } else {
       setLoading(true);
     }
-  }, [location.pathname, user]);
+  }, [location, user.user_id, page]);
 
   const toggleLike = async (mainfeed_id: number, isLiked: boolean) => {
     if (!feeds || !MyFeeds || !LikeFeeds) return;
@@ -177,6 +230,28 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
     }
   };
 
+  const toggleBookmark = async (diaryId: string) => {
+    if (!diaries) return;
+
+    const response = (await changeDiaryBookmark(diaryId)) as DefaultResponse;
+    console.log(response);
+
+    if (response.code !== "SU") {
+      console.error("Failed to toggle bookmark");
+    }
+  };
+
+  const loadMoreFeeds = () => {
+    if (!loading && hasMore && !isFetching) {
+      setIsFetching(true); // 추가 로드 시작
+      setPage((prevPage) => {
+        setInitialLoad(false);
+        const newPage = prevPage + 1;
+        return newPage;
+      });
+    }
+  };
+
   return (
     <FeedContext.Provider
       value={{
@@ -193,6 +268,12 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
         diaries,
         setDiaries,
         toggleLike,
+        toggleBookmark,
+        page,
+        setPage,
+        loadMoreFeeds,
+        reports,
+        setReports,
       }}
     >
       {children}

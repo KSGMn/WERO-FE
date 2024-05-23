@@ -2,41 +2,53 @@ import React, { useContext, useEffect, useState } from "react";
 import "./MyPage.css";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import HistoryComponent from "../../layout/HistoryComponent";
+import LikeComponent from "../../layout/LikeComponent";
 
 const MyPage = () => {
   const location = useLocation();
-
-  const { user, logout } = useContext(AuthContext);
-
   const navigate = useNavigate();
 
+  const { user, logout, unlink_res, loading } = useContext(AuthContext);
+
+  console.log(user.platform_type);
+
   const handleLogout = async () => {
+    // if (user.platform_type === "kakao") {
+    //   const result = await unlink_res();
+    //   if (result) {
+    //     navigate("/"); // 성공적으로 로그아웃 했으면 홈 페이지로 이동
+    //   } else {
+    //     alert("로그아웃에 실패하였습니다.");
+    //   }
+    //   return;
+    // }
+
     const result = await logout(); // 로그아웃 함수 호출
     if (result) {
       navigate("/"); // 성공적으로 로그아웃 했으면 홈 페이지로 이동
     } else {
       alert("로그아웃에 실패하였습니다.");
+      return;
     }
   };
-
-  const encodedFileName = "%E1%84%83%E1%85%A1%E1%84%8B%E1%85%AE%E1%86%AB%E1%84%85%E1%85%A9%E1%84%83%E1%85%B3.jpeg";
-  const decodedFileName = decodeURIComponent(encodedFileName);
-  const imageUrl = `http://localhost:8080/uploads/${decodedFileName}`;
 
   return (
     <div className="container">
       <div className="profile d-flex flex-column align-items-center" style={{ height: "auto" }}>
         <div className="profile-image-container mb-3">
-          {user.profile_image !== "" ? (
+          {user.profile_image !== "http://localhost:8080/uploads/undefined" ? (
             <img
-              src={imageUrl}
+              src={user.profile_image}
               alt=""
               style={{
                 width: "120px",
                 height: "120px",
-                //background: "black",
                 borderRadius: "50%",
                 objectFit: "cover",
+              }}
+              onClick={() => {
+                navigate("/mypage/prof/update");
               }}
             />
           ) : (
@@ -54,6 +66,9 @@ const MyPage = () => {
                 fontFamily: "Arial, sans-serif",
                 fontWeight: "bold",
               }}
+              onClick={() => {
+                navigate("/mypage/prof/update");
+              }}
             >
               {user.userName}
             </div>
@@ -61,7 +76,6 @@ const MyPage = () => {
         </div>
         <div className="user-info text-center ">
           {user.profile_image !== "" ? <h4 className="text-black">{user.userName}</h4> : null}
-          <p className="text-black m-0">{user.bio}</p>
         </div>
       </div>
       <div className="d-flex flex-row justify-content-center">
@@ -92,9 +106,7 @@ const MyPage = () => {
         </Link>
       </div>
       <div className="container" style={{ height: "auto" }}>
-        <div className="gallery">
-          <Outlet />
-        </div>
+        <div className="gallery"></div>
       </div>
     </div>
   );

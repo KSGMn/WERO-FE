@@ -87,7 +87,7 @@ const Signup = () => {
   const [isCertificationCheck, setCertificationCheck] = useState<boolean>(false);
 
   const emailPattern = /^[a-zA-Z0-9]*@([-.]?[a-zA-Z0-9])*\.[a-zA-Z]{2,4}$/;
-  const passwordPattern = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,13}$/;
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{8,}$/;
 
   const idCheckResponse = (responseBody: ResponseBody<IdCheckResponseDto>) => {
     if (!responseBody) return;
@@ -248,7 +248,7 @@ const Signup = () => {
       password: formValues.password
         ? passwordValid
           ? ""
-          : "비밀번호는 영문자와 숫자를 포함한 8-13자여야 합니다."
+          : "비밀번호는 소문문자와 대문자, 숫자, 특수문자를 포함한 8자 이상이어야 합니다."
         : "",
       confirmPassword: formValues.confirmPassword ? (passwordsMatch ? "" : "비밀번호가 일치하지 않습니다.") : "",
     });

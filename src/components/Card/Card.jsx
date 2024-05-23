@@ -20,6 +20,7 @@ const Card = ({
   handleContentChange,
   handleTrackNameChange,
   isBookmarked,
+  toggleBookmark,
 }) => {
   const [Bookmarked, setBookmarked] = useState(isBookmarked);
   const [Liked, setLiked] = useState(isLiked);
@@ -37,10 +38,22 @@ const Card = ({
       const widthLength = contentLength > 0 ? contentLength : placeholderLength;
       inputRef.current.style.width = `${widthLength + 5}ch`;
     }
-  }, [content, location.pathname]);
+  }, [content]);
 
-  //const toggleBookmark = () => setBookmarked(!Bookmarked);
   const { user } = useContext(AuthContext);
+
+  const toggleBookmarkFunction = () => {
+    if (isRequesting) return; // 이미 요청 중이면 무시
+    setIsRequesting(true);
+    try {
+      toggleBookmark(id.toString());
+      setBookmarked(isBookmarked === 1 ? 0 : 1);
+    } catch (error) {
+      console.error("Error toggling bookmark", error);
+    } finally {
+      setIsRequesting(false); // 요청 완료 후 상태 업데이트
+    }
+  };
 
   const getToggleLikeFunction = () => {
     if (isRequesting) return; // 이미 요청 중이면 무시
@@ -58,8 +71,9 @@ const Card = ({
 
   const isAddMode = location.pathname.includes("/edit/-1");
   const isUpdateMode = location.pathname.includes(`/edit/${id}`);
-  const isReadMode = location.pathname.startsWith("/read/");
+  const isReadMode = location.pathname.includes(`/read/${id}`);
   const isMoodyMatchMode = location.pathname.includes("/moody-match");
+  const isDiaryMode = location.pathname.includes("/diary");
 
   const renderInteractiveArea = () => {
     const className =
@@ -69,7 +83,7 @@ const Card = ({
     if (location.pathname.includes("/diary")) {
       return (
         <div className={className}>
-          <button aria-label="Bookmark" className="icon-button" onClick={null}>
+          <button aria-label="Bookmark" className="icon-button" onClick={toggleBookmarkFunction}>
             <FontAwesomeIcon icon={Bookmarked === 1 ? fasBookmark : farBookmark} />
           </button>
         </div>
@@ -90,13 +104,26 @@ const Card = ({
   };
 
   const renderTitle = () => {
-    return <p>{trackName}</p>;
+    return (
+      <input
+        className={isDiaryMode ? "input-title-with-placeholder-diary-read" : "input-content-with-placeholder-read"}
+        type="text"
+        value={trackName}
+        readOnly
+      />
+    );
   };
 
   const renderContent = () => {
     return (
       <span className="card-content" style={cardStyle} onClick={cardClickHandler}>
-        <input ref={inputRef} className="input-content-with-placeholder-read" type="text" value={content} readOnly />
+        <input
+          ref={inputRef}
+          className={isDiaryMode ? "input-content-with-placeholder-diary-read" : "input-content-with-placeholder-read"}
+          type="text"
+          value={content}
+          readOnly
+        />
       </span>
     );
   };
@@ -114,8 +141,7 @@ const Card = ({
   return (
     <div className="card" style={cardBg}>
       <div className="card-header">
-        {renderInteractiveArea()}
-        {renderContent()}
+        {renderInteractiveArea()} {renderContent()}
       </div>
       {location.pathname.includes("/diary") && (
         <div className="card-title" onClick={cardClickHandler} style={cardStyle}>

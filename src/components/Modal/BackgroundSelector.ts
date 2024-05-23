@@ -17,7 +17,7 @@ type ImageMap = {
 };
 
 export const colorMap: ColorMap = {
-  white: "#FFF",
+  white: "#FAFAFA",
   red: "#F00",
   blue: "#00F",
   green: "#0F0",

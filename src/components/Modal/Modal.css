@@ -131,7 +131,7 @@
 .modal-header-btn {
   display: flex;
   justify-content: space-evenly;
-  width: 60%;
+  width: 100%;
 }
 
 .color-palette-dropdown,

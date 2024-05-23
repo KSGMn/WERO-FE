@@ -1,9 +1,10 @@
 import DesignGrid from "../components/DesignGrid/DesignGrid";
 import { Outlet } from "react-router-dom";
 import { useFeeds } from "../context/FeedContext";
+import { useEffect, useRef } from "react";
 
 const HomeComponent = () => {
-  const { feeds, loading, toggleLike } = useFeeds();
+  const { feeds, loading, toggleLike, loadMoreFeeds, hasMore } = useFeeds();
 
   if (feeds === undefined) {
     return <div className="center-message">피드를 불러오지 못했습니다.</div>;
@@ -19,7 +20,8 @@ const HomeComponent = () => {
 
   return (
     <div className="feed ">
-      <DesignGrid feeds={feeds} toggleLike={toggleLike} />
+      <DesignGrid feeds={feeds} toggleLike={toggleLike} loadMoreFeeds={loadMoreFeeds} />
+
       <Outlet />
     </div>
   );

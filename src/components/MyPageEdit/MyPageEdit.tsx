@@ -10,14 +10,19 @@ import { ResponseCode } from "../../types/enums";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import { SignInRequestDto } from "../../api/request/auth";
-import { SNS_SIGN_IN_URL, signInRequest } from "../../api";
+import { SNS_SIGN_IN_URL, signInRequest, updateUserProfile } from "../../api";
 import { AuthContext } from "../../context/AuthContext";
+import DeleteUserRequestDto from "../../api/request/user/delete-user.request.dto";
+import UpdateUserRequestDto from "../../api/request/user/update-user.request.dto";
 
 const MyPageEdit = () => {
-  const [email, setEmail] = useState("");
-  const [id, setId] = useState("");
-  const [nickName, setNickName] = useState("");
+  const { user, setUser, deleteUser, loading } = useContext(AuthContext);
+
+  const [email, setEmail] = useState(user.email);
+  const [id, setId] = useState(user.user_id);
+  const [nickName, setNickName] = useState(user.userName);
   const [password, setPassword] = useState("");
+  const [gender, setGender] = useState(user.gender);
 
   const [isError, setError] = useState<boolean>(false);
 
@@ -27,15 +32,20 @@ const MyPageEdit = () => {
 
   const [editClick, setEditClick] = useState<boolean>(false);
 
-  const { user, setUser } = useContext(AuthContext);
-
   useEffect(() => {
-    setEmail(user.email);
-    setId(user.user_id);
-    setNickName(user.userName);
-  }, []);
+    if (user.email && user.userName && user.user_id) {
+      setEmail(user.email);
+      setId(user.user_id);
+      setNickName(user.userName);
+      setGender(user.gender);
+    }
+  }, [user]);
 
   const navigate = useNavigate();
+
+  if (loading) {
+    return <div className="center-message"></div>;
+  }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -91,9 +101,29 @@ const MyPageEdit = () => {
     setEditClick(true);
   };
 
-  const onSaveButton = () => {};
+  const onDeleteUserButton = async () => {
+    const requestBody: DeleteUserRequestDto = { userId: user.user_id };
+    const result = await deleteUser(requestBody); // 로그아웃 함수 호출
+    if (result) {
+      navigate("/"); // 성공적으로 회원탈퇴 했으면 홈 페이지로 이동
+    } else {
+      alert("회원탈퇴에 실패하였습니다.");
+    }
+  };
+
+  const onSaveButton = async () => {
+    try {
+      const requestBody: UpdateUserRequestDto = { email, password, nickName, gender };
+      await updateUserProfile(requestBody);
+    } catch (error) {
+      console.log("User Profile Update Fail");
+    }
+  };
 
   const onCancleButton = () => {
+    setEmail(user.email);
+    setId(user.user_id);
+    setNickName(user.userName);
     setEditClick(false);
   };
 
@@ -182,13 +212,53 @@ const MyPageEdit = () => {
           </div>
 
           <div className="mypage-edit-inputbox d-flex flex-row">
-            <label className="mypage-edit-input-label">Nick Name</label>
+            <label className="mypage-edit-input-label">NickName</label>
             <input
               className={editClick ? "mypage-edit-input" : "mypage-edit-input-read"}
               type="text"
               name="nickname"
               value={nickName}
               onChange={handleChange}
+              required
+              readOnly={editClick ? false : true}
+            />
+            {message && <div className={`${!isError ? "success-message" : "error-message"}`}>{message}</div>}
+          </div>
+          <div className="mypage-edit-inputbox d-flex flex-row">
+            <label className="mypage-edit-input-label">PW</label>
+            <input
+              className={editClick ? "mypage-edit-input" : "mypage-edit-input-read"}
+              type="text"
+              name="password"
+              value={password}
+              onChange={handleChange}
+              required
+              placeholder="현재 비밀번호를 입력하세요"
+              readOnly={editClick ? false : true}
+            />
+            {message && <div className={`${!isError ? "success-message" : "error-message"}`}>{message}</div>}
+          </div>
+          <div className="mypage-edit-inputbox d-flex flex-row">
+            <label className="mypage-edit-input-label">Alter-PW</label>
+            <input
+              className={editClick ? "mypage-edit-input" : "mypage-edit-input-read"}
+              type="text"
+              name="password"
+              onChange={handleChange}
+              required
+              placeholder="변경할 비밀번호를 입력하세요"
+              readOnly={editClick ? false : true}
+            />
+            {message && <div className={`${!isError ? "success-message" : "error-message"}`}>{message}</div>}
+          </div>
+          <div className="mypage-edit-inputbox d-flex flex-row">
+            <label className="mypage-edit-input-label">Gender</label>
+            <input
+              className={editClick ? "mypage-edit-input" : "mypage-edit-input-read"}
+              type="text"
+              name="gender"
+              onChange={handleChange}
+              value={gender}
               required
               readOnly={editClick ? false : true}
             />
@@ -268,7 +338,7 @@ const MyPageEdit = () => {
 
             <div className="bottom-button-container">
               {" "}
-              <div className="btn btn-primary" style={{ width: "120px" }} onClick={() => onEditButton()}>
+              <div className="btn btn-primary" style={{ width: "120px" }} onClick={() => onDeleteUserButton()}>
                 회원 탈퇴
               </div>
             </div>

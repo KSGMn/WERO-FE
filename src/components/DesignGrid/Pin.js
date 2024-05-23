@@ -14,6 +14,7 @@ const Pin = (props) => {
         cardClickHandler={props.cardClickHandler}
         toggleLike={props.toggleLike}
         isBookmarked={props.isBookmarked}
+        toggleBookmark={props.toggleBookmark}
       />
     </div>
   );

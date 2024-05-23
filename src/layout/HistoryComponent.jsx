@@ -3,7 +3,7 @@ import DesignGrid from "../components/DesignGrid/DesignGrid";
 import { useFeeds } from "../context/FeedContext";
 
 const HistoryComponent = () => {
-  const { MyFeeds, loading, toggleLike } = useFeeds();
+  const { MyFeeds, loading, toggleLike, loadMoreFeeds } = useFeeds();
 
   if (MyFeeds === undefined) {
     return <div className="center-message">피드를 불러오지 못했습니다.</div>;
@@ -19,7 +19,7 @@ const HistoryComponent = () => {
 
   return (
     <div className="myfeed">
-      <DesignGrid feeds={MyFeeds} toggleLike={toggleLike} />
+      <DesignGrid feeds={MyFeeds} toggleLike={toggleLike} loadMoreFeeds={loadMoreFeeds} />
       <Outlet />
     </div>
   );

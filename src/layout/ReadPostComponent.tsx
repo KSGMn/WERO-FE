@@ -8,13 +8,23 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faPen, faTrash, faFloppyDisk, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import "../components/Modal/Modal.css";
 import { ApiOneDiaryResponse, ApiOneResponse, useFeeds } from "../context/FeedContext";
-import { createDiary, createFeed, deleteFeed, findOneDiary, findOneFeed, updateDiary, updateFeed } from "../api";
+import {
+  createDiary,
+  createFeed,
+  deleteFeed,
+  feedReport,
+  findOneDiary,
+  findOneFeed,
+  updateDiary,
+  updateFeed,
+} from "../api";
 import UpdateFeedRequestDto from "../api/request/feed/update-feed.request.dto";
 import CreateFeedRequestDto from "../api/request/feed/create-feed.request.dto";
 import ModalCard from "../components/Card/ModalCard";
 import { backgroundOptions, colorMap, imageMap } from "../components/Modal/BackgroundSelector";
 import CreateDiaryRequestDto from "../api/request/diary/create-diary.request.dto";
 import UpdateDiaryRequestDto from "../api/request/diary/update-diary.request.dto";
+import { deleteDiary } from "../api/index";
 
 // 모달을 마운트할 요소 설정
 Modal.setAppElement("#root");
@@ -46,7 +56,9 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isAlreadyReportConfirmModalOpen, setIsAlreadyReportConfirmModalOpen] = useState(false);
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
+  const [isReportConfirmModalOpen, setIsReportConfirmModalOpen] = useState(false);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [isEmotionOpen, setIsEmotionOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -83,10 +95,10 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
       const findOneDiaryResponse = (getDiary: ApiOneDiaryResponse) => {
         if (getDiary) {
           setIsContent(getDiary.diaryContent);
-          setSelectedBackground("white");
+          setSelectedBackground(getDiary.image);
           setSelectedEmotion(getDiary.emotion);
           setIsTrackName(getDiary.song);
-          setLiked(false);
+          setLiked(getDiary.isBookmarked);
         }
       };
       findOneDiary(parseInt(id)).then(findOneDiaryResponse);
@@ -196,8 +208,8 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     }
 
     if (location.pathname.includes("/edit/-1") && pathName === "diary") {
-      if (isContent === "" || isTrackName === "" || selectedEmotion === "") {
-        alert("제목, 내용, 감정은 필수 내용입니다.");
+      if (isContent === "" || isTrackName === "" || selectedEmotion === "" || selectedBackground === "") {
+        alert("제목, 내용, 감정, 배경은 필수 내용입니다.");
         return;
       } else {
         const createDiaryResponse = (newFeed: any) => {
@@ -211,6 +223,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
           diaryContent: isContent,
           emotion: selectedEmotion,
           song: isTrackName,
+          image: selectedBackground,
         };
         createDiary(requestBody).then(createDiaryResponse);
         setIsConfirmModalOpen(true);
@@ -219,7 +232,11 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     }
 
     if (location.pathname.includes(`/edit/${id}`) && pathName === "feed") {
-      if (isContent === originalContent && isTrackName === originalTrackName && selectedEmotion === originalEmotion) {
+      if (
+        isContent === originalContent &&
+        selectedBackground === originalBackground &&
+        selectedEmotion === originalEmotion
+      ) {
         alert("변경 사항이 없습니다");
         return;
       } else {
@@ -245,7 +262,8 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
       if (
         isContent === originalContent &&
         selectedBackground === originalBackground &&
-        selectedEmotion === originalEmotion
+        selectedEmotion === originalEmotion &&
+        isTrackName === originalTrackName
       ) {
         alert("변경 사항이 없습니다");
         return;
@@ -261,6 +279,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
           diaryContent: isContent,
           emotion: selectedEmotion,
           song: isTrackName,
+          image: selectedBackground,
         };
         updateDiary(requestBody, parseInt(id)).then(updateDiaryResponse);
         navigate(-1);
@@ -277,13 +296,33 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     setIsDeleteConfirmModalOpen(true);
   };
 
+  const openReportComfirmModal = () => {
+    setIsReportConfirmModalOpen(true);
+  };
+
+  const feedReportBtn = () => {
+    feedReport(parseInt(id))
+      .then()
+      .catch((error) => {
+        setIsAlreadyReportConfirmModalOpen(true);
+      })
+      .finally(() => {
+        setIsReportConfirmModalOpen(false);
+      });
+  };
+
   const closeConfirmModal = () => {
     setIsConfirmModalOpen(false);
     setIsDeleteConfirmModalOpen(false);
   };
 
   const handleDelete = () => {
-    deleteFeed(user.user_id, parseInt(id));
+    if (location.pathname.includes("diary")) {
+      deleteDiary(parseInt(id));
+    } else {
+      deleteFeed(user.user_id, parseInt(id));
+    }
+
     if (startsWithsMypage()) return;
     if (startsWithsHistory()) return;
     if (startsWithsDiary()) return;
@@ -339,6 +378,11 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
           {userId === user.user_id ? (
             <div className="palette-toggle-button" onClick={openDeleteComfirmModal}>
               삭제
+            </div>
+          ) : null}
+          {userId !== user.user_id ? (
+            <div className="palette-toggle-button" onClick={openReportComfirmModal}>
+              신고
             </div>
           ) : null}
         </div>
@@ -410,9 +454,9 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
           >
             <div className="modal-header">
               {renderModalTitle()}
-              {renderIcon()}
               <FontAwesomeIcon className="modal-close-btn-icon fs-3" icon={faXmark} onClick={onRequestClose} />
             </div>
+            <div className="modal-header">{renderIcon()}</div>
             <div style={{ height: "400px", marginTop: "16px" }}>
               <ModalCard
                 id={id}
@@ -456,6 +500,37 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
             <h5>피드가 생성되었습니다.</h5>
             <div className="confirm-modal-buttons">
               <button className="btn" onClick={() => navigate("/")}>
+                확인
+              </button>
+            </div>
+          </Modal>
+          <Modal
+            isOpen={isReportConfirmModalOpen}
+            onRequestClose={closeConfirmModal}
+            contentLabel="Confirm Deletion"
+            overlayClassName="confirm-modal-overlay"
+            className="confirm-modal-content"
+          >
+            <h5>정말 신고하시겠습니까?</h5>
+            <div className="confirm-modal-buttons">
+              <button className="btn cancel" onClick={feedReportBtn}>
+                예
+              </button>
+              <button className="btn" onClick={() => setIsReportConfirmModalOpen(false)}>
+                아니오
+              </button>
+            </div>
+          </Modal>
+          <Modal
+            isOpen={isAlreadyReportConfirmModalOpen}
+            onRequestClose={closeConfirmModal}
+            contentLabel="Confirm Deletion"
+            overlayClassName="confirm-modal-overlay"
+            className="confirm-modal-content"
+          >
+            <h5>신고 완료된 피드입니다</h5>
+            <div className="confirm-modal-buttons">
+              <button className="btn cancel" onClick={() => setIsAlreadyReportConfirmModalOpen(false)}>
                 확인
               </button>
             </div>

@@ -5,7 +5,7 @@ import { useFeeds } from "../context/FeedContext";
 import { Outlet } from "react-router-dom";
 
 const DiaryComponent = () => {
-  const { diaries, toggleLike, loading } = useFeeds();
+  const { diaries, toggleBookmark, loading } = useFeeds();
 
   if (diaries === undefined) {
     return <div className="center-message">피드를 불러오지 못했습니다.</div>;
@@ -21,7 +21,7 @@ const DiaryComponent = () => {
 
   return (
     <div className="diaries">
-      <DesignGrid feeds={diaries} toggleLike={toggleLike} />
+      <DesignGrid feeds={diaries} toggleBookmark={toggleBookmark} />
       <Outlet />
     </div>
   );

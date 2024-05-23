@@ -23,7 +23,7 @@ const Login = () => {
 
   const [cookie, setCookie] = useCookies();
 
-  const { user, setUser } = useContext(AuthContext);
+  const { user, setUser, setLoggedIn, setToken } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -52,10 +52,13 @@ const Login = () => {
       const now = new Date().getTime();
       const expires = new Date(now + Number(expirationTime) * 1000);
 
-      setUser({ ...user, user_id: userId });
       localStorage.setItem("isLoggedIn", "true");
       //localStorage.setItem("user_id", userId);
 
+      console.log("로그인 실행됨");
+
+      setToken(token);
+      setLoggedIn(true);
       setError(false);
       setCookie("accessToken", token, { expires, path: "/" });
       navigate("/");

@@ -17,6 +17,7 @@ export const SideBarIcon = (toggleSidebar) => [
     icon: <FontAwesomeIcon className="close-btn-icon fs-3" icon={faXmark} onClick={toggleSidebar} />,
   }, //1
   { icon: <FontAwesomeIcon icon={faHeadset} /> }, //2
+  { icon: <FontAwesomeIcon icon={faStar} /> }, //3
 ];
 
 export const SideBarData = [
@@ -38,7 +39,7 @@ export const SideBarData = [
   {
     title: "Category",
     icon: <FontAwesomeIcon icon={faList} />,
-    link: "",
+    link: "/category",
   },
   {
     title: "Moody Match",

@@ -18,15 +18,19 @@ import {
   ApiDiaryResponse,
   ApiOneDiaryResponse,
   ApiOneResponse,
+  ApiReportResponse,
   ApiResponse,
   DefaultResponse,
 } from "../context/FeedContext";
 import CreateFeedRequestDto from "./request/feed/create-feed.request.dto";
 import UpdateFeedRequestDto from "./request/feed/update-feed.request.dto";
-import { ApiUserResponse } from "../context/AuthContext";
+import { ApiUserResponse, AuthContext } from "../context/AuthContext";
 import CreateDiaryRequestDto from "./request/diary/create-diary.request.dto";
 import UpdateDiaryRequestDto from "./request/diary/update-diary.request.dto";
 import UpdateUserRequestDto from "./request/user/update-user.request.dto";
+import DeleteUserRequestDto from "./request/user/delete-user.request.dto";
+import UserPostPictureRequestDto from "./request/user/user-post-picture.request.dto";
+import { useContext } from "react";
 
 const responseHandler = <T>(response: AxiosResponse<any, any>) => {
   const responseBody: T = response.data;
@@ -51,6 +55,7 @@ const SIGN_UP_URL = () => `${API_DOMAIN}/auth/register`;
 const ID_CHECK_URL = () => `${API_DOMAIN}/auth/id-check`;
 const EMAIL_CERTIFICATION_URL = () => `${API_DOMAIN}/auth/email-certification`;
 const CHECK_CERTIFICATION_URL = () => `${API_DOMAIN}/auth/check-certification`;
+const DELETE_USER_URL = () => `${API_DOMAIN}/user/delete`;
 
 export const signInRequest = async (requestBody: SignInRequestDto) => {
   const result = await axios
@@ -94,15 +99,32 @@ export const checkCertificationRequest = async (requestBody: CheckCertificationR
 
 export const Logout = () => axios.post(LOG_OUT());
 
+export const deleteUserProfile = async (requestBody: DeleteUserRequestDto) => {
+  const result = await axios
+    .delete(DELETE_USER_URL(), {
+      headers: headers,
+      withCredentials: true,
+      data: requestBody,
+    })
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as DefaultResponse;
+};
+
 //user profile api
 
 const GET_USER_URL = () => `${API_DOMAIN}/user/profile`;
 const UPDATE_USER_URL = () => `${API_DOMAIN}/user/update`;
+const GET_USER_IMAGES_URL = () => `${API_DOMAIN}/user/find/prof`;
+const UPLOAD_USER_IMAGES_URL = () => `${API_DOMAIN}/user/update/prof`;
 
-export const getUserProfile = async () => {
+export const getUserProfile = async (token: string) => {
   const result = await axios
     .get(GET_USER_URL(), {
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       withCredentials: true,
     })
     .then(responseHandler)
@@ -118,12 +140,41 @@ export const updateUserProfile = async (requestBody: UpdateUserRequestDto) => {
     })
     .then(responseHandler)
     .catch(errorHandler);
-  return result as ApiUserResponse;
+  return result as DefaultResponse;
+};
+
+export const getUserImages = async (token: string) => {
+  const result = await axios
+    .get(GET_USER_IMAGES_URL(), {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    })
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as [];
+};
+
+export const uploadUserImages = async (requestBody: UserPostPictureRequestDto) => {
+  const result = await axios
+    .post(UPLOAD_USER_IMAGES_URL(), requestBody, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    })
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as DefaultResponse;
 };
 
 //feed api
 
 const token = Cookies.get("accessToken");
+
 const headers = {
   "Content-Type": "application/json",
   Authorization: `Bearer ${token}`,
@@ -138,10 +189,15 @@ export const UPDATE_FEED_URL = (userId: string, id: number) => `${API_DOMAIN}/us
 export const DELETE_FEED_URL = (userId: string, id: number) => `${API_DOMAIN}/user/feeds/${userId}/${id}`;
 export const FEED_ADD_LIKE_URL = (userId: string, id: any) => `${API_DOMAIN}/user/feeds/${userId}/${id}/like`;
 export const FEED_DELETE_LIKE_URL = (userId: string, id: any) => `${API_DOMAIN}/user/feeds/${userId}/${id}/like`;
+export const FEED_REPORT_URL = (id: number) => `${API_DOMAIN}/user/feeds/${id}/report`;
 
-export const findAllFeed = async (userId: string) => {
+export const findAllFeed = async (userId: string, page: number) => {
   const result = await axios
     .get(FIND_ALL_FEED_URL(userId), {
+      params: {
+        page: page,
+        size: 10,
+      },
       headers: headers,
       withCredentials: true,
     })
@@ -150,9 +206,13 @@ export const findAllFeed = async (userId: string) => {
   return result as ApiResponse;
 };
 
-export const findMyFeed = async (userId: string) => {
+export const findMyFeed = async (userId: string, page: number) => {
   const result = await axios
     .get(FIND_MY_FEED_URL(userId), {
+      params: {
+        page: page,
+        size: 10,
+      },
       headers: headers,
       withCredentials: true,
     })
@@ -243,6 +303,21 @@ export const feedDeleteLike = async (userId: string, id: any) => {
   return result;
 };
 
+export const feedReport = async (id: number) => {
+  const result = await axios
+    .post(
+      FEED_REPORT_URL(id),
+      {},
+      {
+        headers: headers,
+        withCredentials: true,
+      }
+    )
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result;
+};
+
 //moody-match api
 export const MOODY_MATCH_FEED_URL = (userId: string) => `${API_DOMAIN}/user/feeds/${userId}/moody-match`;
 
@@ -263,6 +338,7 @@ export const FIND_ONE_DIARY_URL = (diaryId: number) => `${API_DOMAIN}/diary/${di
 export const CREATE_DIARY_URL = () => `${API_DOMAIN}/diary`;
 export const UPDATE_DIARY_URL = (diaryId: number) => `${API_DOMAIN}/diary/${diaryId}`;
 export const DELETE_DIARY_URL = (diaryId: number) => `${API_DOMAIN}/diary/${diaryId}`;
+export const DIARY_BOOKMARK_URL = (diaryId: string) => `${API_DOMAIN}/diary/${diaryId}/bookMark`;
 
 export const findAllDiary = async () => {
   const result = await axios
@@ -311,6 +387,51 @@ export const updateDiary = async (requestBody: UpdateDiaryRequestDto, diaryId: n
 export const deleteDiary = async (diaryId: number) => {
   const result = await axios
     .delete(DELETE_DIARY_URL(diaryId), {
+      headers: headers,
+      withCredentials: true,
+    })
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as DefaultResponse;
+};
+
+export const changeDiaryBookmark = async (diaryId: string) => {
+  const result = await axios
+    .put(
+      DIARY_BOOKMARK_URL(diaryId),
+      {},
+      {
+        headers: headers,
+        withCredentials: true,
+      }
+    )
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as DefaultResponse;
+};
+
+//admin api
+export const FIND_ALL_REPORT_URL = () => `${API_DOMAIN}/admin/reports`;
+export const DELETE_REPORT_URL = (id: number) => `${API_DOMAIN}/admin/${id}`;
+
+export const findAllReport = async (page: number) => {
+  const result = await axios
+    .get(FIND_ALL_REPORT_URL(), {
+      params: {
+        page: page,
+        size: 10,
+      },
+      headers: headers,
+      withCredentials: true,
+    })
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result as ApiReportResponse;
+};
+
+export const deleteReport = async (id: number) => {
+  const result = await axios
+    .delete(DELETE_REPORT_URL(id), {
       headers: headers,
       withCredentials: true,
     })

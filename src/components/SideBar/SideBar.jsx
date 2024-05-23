@@ -1,12 +1,14 @@
 import React, { useContext, useState } from "react";
 import { SideBarData, SideBarIcon } from "./SideBarData";
 import "./SideBar.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext, useUser } from "../../context/AuthContext";
+import Cookies from "js-cookie";
 
 const SideBar = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  const location = useLocation();
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
@@ -14,8 +16,7 @@ const SideBar = () => {
   };
 
   const { user, loading } = useContext(AuthContext);
-
-  console.log(`유저${user.user_id}`, loading);
+  console.log("사이드바" + user.user_id);
 
   return (
     <>
@@ -46,7 +47,7 @@ const SideBar = () => {
                 alignItems: "center",
               }}
             >
-              {user.profile_image !== "" ? (
+              {user.profile_image !== "http://localhost:8080/uploads/undefined" ? (
                 <img
                   src={user.profile_image}
                   alt=""
@@ -97,16 +98,6 @@ const SideBar = () => {
                     {user.userName}
                   </div>
                 ) : null}
-                <div
-                  className="text-white"
-                  style={{
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                    overflow: "hidden",
-                  }}
-                >
-                  {user.bio}
-                </div>
               </div>
             </div>
           )}
@@ -115,12 +106,24 @@ const SideBar = () => {
 
         <ul className="SidebarList">
           {SideBarData.map((val, key) => (
-            <li key={key} className="SidebarItem" onClick={() => (window.location.pathname = val.link)}>
+            <li
+              key={key}
+              className="SidebarItem"
+              style={{ backgroundColor: location.pathname.includes(val.link) ? "#3f5060" : null }}
+              onClick={() => (window.location.pathname = val.link)}
+            >
               <div className="SidebarIcon">{val.icon}</div>
               <div className="SidebarTitle">{val.title}</div>
             </li>
           ))}
         </ul>
+        {user.user_id === "admin" && (
+          <div className="SidebarItem" onClick={() => (window.location.pathname = "/admin")}>
+            <div className="SidebarIcon">{SideBarIcon()[3].icon}</div>
+            <div className="SidebarTitle">Admin</div>
+          </div>
+        )}
+
         <div className="SidebarItem mt-auto">
           <div className="SidebarIcon">{SideBarIcon()[2].icon}</div>
           <div className="SidebarTitle">Service center</div>

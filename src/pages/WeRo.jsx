@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import HomeComponent from "../layout/HomeComponent";
 import "./WeRo.css";
@@ -19,6 +19,8 @@ import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 import MoodyMatchComponent from "../layout/MoodyMatchComponent.jsx";
+import ProfilePictureUpload from "../components/ProfilePictureUpload/ProfilePictureUpload.jsx";
+import AdminComponent from "../layout/AdminComponent.jsx";
 
 const WeRo = () => {
   const location = useLocation();
@@ -67,6 +69,7 @@ const WeRo = () => {
               <Route path="likes" element={<LikeComponent />} />
               <Route path="read/:id" element={<ReadPostComponent />} />
               <Route path="edit/:id" element={<ReadPostComponent />} />
+              <Route path="prof/update" element={<ProfilePictureUpload />} />
             </Route>
             <Route path="/diary" element={<DiaryComponent />}>
               <Route path="read/:id" element={<ReadPostComponent />} />
@@ -84,6 +87,7 @@ const WeRo = () => {
             <Route path="/login" element={<LoginComponent />} />
             <Route path="/signup" element={<SignupComponent />} />
             <Route path="/moody-match" element={<MoodyMatchComponent />} />
+            <Route path="/admin" element={<AdminComponent />} />
             <Route path="/auth/oauth2-response/:token/:expirationTime" element={<OauthComponent />} />
           </Routes>
         </div>
