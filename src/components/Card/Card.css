@@ -117,6 +117,7 @@
   text-align: center;
   height: auto;
   cursor: pointer;
+  resize: none;
 }
 
 .input-content-with-placeholder-diary-read {
@@ -130,6 +131,7 @@
   text-align: center;
   height: auto;
   cursor: pointer;
+  resize: none;
 }
 
 .input-title-with-placeholder-diary-read {
@@ -143,6 +145,8 @@
   text-align: center;
   height: auto;
   cursor: pointer;
+  word-wrap: break-word;
+  resize: none;
 }
 
 .input-content-with-placeholder::placeholder {
@@ -152,6 +156,7 @@
 .input-content-with-placeholder-diary::placeholder,
 .input-title-with-placeholder-diary::placeholder {
   color: black;
+  word-break: normal;
 }
 
 .hidden-but-occupy-space {

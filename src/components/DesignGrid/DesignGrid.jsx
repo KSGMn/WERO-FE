@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import "./DesignGrid.css";
 import Pin from "./Pin.js";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const DesignGrid = ({ feeds, toggleLike, toggleBookmark, loadMoreFeeds, hasMore }) => {
+  const { query } = useParams();
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -47,6 +48,14 @@ const DesignGrid = ({ feeds, toggleLike, toggleBookmark, loadMoreFeeds, hasMore 
     path = "/mypage";
   }
 
+  if (location.pathname === "/mypage/history") {
+    path = "/mypage/history";
+  }
+
+  if (location.pathname === "/mypage/likes") {
+    path = "/mypage/likes";
+  }
+
   if (location.pathname === "/diary") {
     path = "/diary";
   }
@@ -56,8 +65,18 @@ const DesignGrid = ({ feeds, toggleLike, toggleBookmark, loadMoreFeeds, hasMore 
   if (location.pathname === "/likes") {
     path = "/likes";
   }
+  if (location.pathname.includes("search")) {
+    path = `/search/${query}`;
+  }
+  if (location.pathname.includes("/category/search/")) {
+    path = `/category/search/${query}`;
+  }
 
   const cardClickHandler = (feedId, content, trackName, image, category, createDate, isLiked, userId, isBookmarked) => {
+    if (location.pathname === "/category") {
+      navigate(`/category/search/${content}`);
+      return;
+    }
     navigate(`${path}/read/${feedId}`, {
       state: {
         content,
@@ -76,7 +95,7 @@ const DesignGrid = ({ feeds, toggleLike, toggleBookmark, loadMoreFeeds, hasMore 
     <div className="pin_container">
       {feeds.length > 0 ? (
         feeds.map((feed, index) => (
-          <React.Fragment key={feed.mainfeed_id || feed.diaryId}>
+          <React.Fragment key={feed.mainfeed_id || feed.diaryId || index}>
             <Pin
               id={feed.mainfeed_id || feed.diaryId}
               size={sizes[index % sizes.length]}
@@ -101,7 +120,7 @@ const DesignGrid = ({ feeds, toggleLike, toggleBookmark, loadMoreFeeds, hasMore 
               isBookmarked={feed.isBookmarked}
               toggleBookmark={toggleBookmark}
             />
-            {(index + 1) % 10 === 0 && (
+            {(index + 1) % 300 === 0 && (
               <div
                 ref={index === feeds.length - 1 ? observerTarget : null}
                 className="red-line"

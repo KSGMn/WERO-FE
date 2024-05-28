@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import HomeComponent from "../layout/HomeComponent";
 import "./WeRo.css";
 
@@ -15,16 +14,28 @@ import OauthComponent from "../components/OauthComponent.tsx";
 import ReadPostComponent from "../layout/ReadPostComponent.tsx";
 import MyPageEditComponent from "../layout/MyPageEditComponent.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
+
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 import MoodyMatchComponent from "../layout/MoodyMatchComponent.jsx";
 import ProfilePictureUpload from "../components/ProfilePictureUpload/ProfilePictureUpload.jsx";
 import AdminComponent from "../layout/AdminComponent.jsx";
+import ReportsComponent from "../components/Admin/ReportsComponent.jsx";
+import SuspensionComponent from "../components/Admin/SuspensionComponent.jsx";
+import SearchComponent from "../layout/SearchComponent.jsx";
+import ProtectedRoute from "../components/ProtectedRoute.jsx";
+import CategoryComponent from "../layout/CategoryComponent.jsx";
+import SearchCategoryComponent from "../layout/SearchCategoryComponent.jsx";
+import { useFeeds } from "../context/FeedContext.tsx";
 
 const WeRo = () => {
+  const { setPage, setInitialLoad } = useFeeds();
   const location = useLocation();
   const hideComponents = location.pathname === "/login" || location.pathname === "/signup";
+  const homeBtn = () => {
+    setPage(0);
+    setInitialLoad(false);
+  };
 
   return (
     <div className="d-flex flex-row" style={{ height: "100vh", width: "auto" }}>
@@ -35,7 +46,14 @@ const WeRo = () => {
           style={{ height: "70px", marginBottom: "50px", padding: "16px" }}
         >
           <Link to="/" className="home-btn">
-            <div className="home-btn d-flex align-items-center ms-3">WeRo</div>
+            <div
+              className="home-btn d-flex align-items-center ms-3"
+              onClick={() => {
+                homeBtn();
+              }}
+            >
+              WeRo
+            </div>
           </Link>
 
           {!hideComponents && (
@@ -62,7 +80,23 @@ const WeRo = () => {
               <Route path="/read/:id" element={<ReadPostComponent />} />
               <Route path="/edit/:id" element={<ReadPostComponent />} />
             </Route>
-            <Route path="/mypage" element={<MyPageComponent />}>
+            <Route path="/search/:query" element={<SearchComponent />}>
+              <Route path="read/:id" element={<ReadPostComponent />} />
+              <Route path="edit/:id" element={<ReadPostComponent />} />
+            </Route>
+            <Route path="/category" element={<CategoryComponent />} />
+            <Route path="/category/search/:query" element={<SearchCategoryComponent />}>
+              <Route path="read/:id" element={<ReadPostComponent />} />
+              <Route path="edit/:id" element={<ReadPostComponent />} />
+            </Route>
+            <Route
+              path="/mypage"
+              element={
+                <ProtectedRoute>
+                  <MyPageComponent />
+                </ProtectedRoute>
+              }
+            >
               {/* 기본 페이지로 HistoryComponent 렌더링 */}
               <Route index element={<HistoryComponent />} />
               <Route path="history" element={<HistoryComponent />} />
@@ -71,24 +105,78 @@ const WeRo = () => {
               <Route path="edit/:id" element={<ReadPostComponent />} />
               <Route path="prof/update" element={<ProfilePictureUpload />} />
             </Route>
-            <Route path="/diary" element={<DiaryComponent />}>
+            <Route
+              path="/diary"
+              element={
+                <ProtectedRoute>
+                  <DiaryComponent />
+                </ProtectedRoute>
+              }
+            >
               <Route path="read/:id" element={<ReadPostComponent />} />
               <Route path="edit/:id" element={<ReadPostComponent />} />
             </Route>
-            <Route path="/history" element={<HistoryComponent />}>
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <HistoryComponent />
+                </ProtectedRoute>
+              }
+            >
               <Route path="read/:id" element={<ReadPostComponent />} />
               <Route path="edit/:id" element={<ReadPostComponent />} />
             </Route>
-            <Route path="/likes" element={<LikeComponent />}>
+            <Route
+              path="/likes"
+              element={
+                <ProtectedRoute>
+                  <LikeComponent />
+                </ProtectedRoute>
+              }
+            >
               <Route path="read/:id" element={<ReadPostComponent />} />
               <Route path="edit/:id" element={<ReadPostComponent />} />
             </Route>
-            <Route path="/mypage/edit" element={<MyPageEditComponent />} />
+            <Route
+              path="/mypage/edit"
+              element={
+                <ProtectedRoute>
+                  <MyPageEditComponent />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/login" element={<LoginComponent />} />
             <Route path="/signup" element={<SignupComponent />} />
-            <Route path="/moody-match" element={<MoodyMatchComponent />} />
-            <Route path="/admin" element={<AdminComponent />} />
-            <Route path="/auth/oauth2-response/:token/:expirationTime" element={<OauthComponent />} />
+            <Route
+              path="/moody-match"
+              element={
+                <ProtectedRoute>
+                  <MoodyMatchComponent />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminComponent />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<ReportsComponent />} />
+              <Route path="reports" element={<ReportsComponent />} />
+              <Route path="user/suspension" element={<SuspensionComponent />} />
+            </Route>
+
+            <Route
+              path="/auth/oauth2-response/:token/:expirationTime"
+              element={
+                <ProtectedRoute>
+                  <OauthComponent />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
       </div>

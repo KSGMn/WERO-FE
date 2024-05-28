@@ -5,7 +5,6 @@ import { faBookmark as fasBookmark, faHeart as fasHeart } from "@fortawesome/fre
 import { faBookmark as farBookmark, faHeart as farHeart } from "@fortawesome/free-regular-svg-icons";
 import { useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import { feedAddLike, feedDeleteLike } from "../../api";
 import { backgroundColorSelector, backgroundImageSelector } from "../Modal/BackgroundSelector";
 
 const Card = ({
@@ -14,11 +13,8 @@ const Card = ({
   content,
   trackName,
   image,
-  user_id,
   cardClickHandler,
   toggleLike,
-  handleContentChange,
-  handleTrackNameChange,
   isBookmarked,
   toggleBookmark,
 }) => {
@@ -37,6 +33,8 @@ const Card = ({
       const placeholderLength = placeholder.length;
       const widthLength = contentLength > 0 ? contentLength : placeholderLength;
       inputRef.current.style.width = `${widthLength + 5}ch`;
+      inputRef.current.style.height = "auto";
+      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
     }
   }, [content]);
 
@@ -56,6 +54,7 @@ const Card = ({
   };
 
   const getToggleLikeFunction = () => {
+    if (user.user_id === "") return alert("로그인 후 이용 가능합니다");
     if (isRequesting) return; // 이미 요청 중이면 무시
     setIsRequesting(true);
 
@@ -79,6 +78,14 @@ const Card = ({
     const className =
       isAddMode || isUpdateMode || isMoodyMatchMode ? "card-icons hidden-but-occupy-space" : "card-icons";
     const iconStyle = Liked ? { color: "red" } : {};
+
+    if (location.pathname === "/category") {
+      return (
+        <button aria-label="Like" className="icon-button" style={{ visibility: "hidden" }}>
+          <FontAwesomeIcon icon={Liked ? fasHeart : farHeart} style={iconStyle} />
+        </button>
+      );
+    }
 
     if (location.pathname.includes("/diary")) {
       return (
@@ -117,12 +124,13 @@ const Card = ({
   const renderContent = () => {
     return (
       <span className="card-content" style={cardStyle} onClick={cardClickHandler}>
-        <input
+        <textarea
           ref={inputRef}
           className={isDiaryMode ? "input-content-with-placeholder-diary-read" : "input-content-with-placeholder-read"}
           type="text"
           value={content}
           readOnly
+          rows={1}
         />
       </span>
     );

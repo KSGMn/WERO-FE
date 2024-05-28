@@ -1,9 +1,8 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { SideBarData, SideBarIcon } from "./SideBarData";
 import "./SideBar.css";
 import { useLocation, useNavigate } from "react-router-dom";
-import { AuthContext, useUser } from "../../context/AuthContext";
-import Cookies from "js-cookie";
+import { AuthContext } from "../../context/AuthContext";
 
 const SideBar = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -15,8 +14,7 @@ const SideBar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
-  const { user, loading } = useContext(AuthContext);
-  console.log("사이드바" + user.user_id);
+  const { user } = useContext(AuthContext);
 
   return (
     <>
@@ -79,6 +77,9 @@ const SideBar = () => {
                     color: "black", // 텍스트 색상 설정
                     fontSize: "12px", // 텍스트 크기 조절, 필요에 따라 조정
                     fontWeight: "bold",
+                    overflow: "hidden", // 내용이 넘칠 때 숨기기
+                    whiteSpace: "nowrap", // 줄바꿈 방지
+                    textOverflow: "ellipsis", // 말줄임표 표시
                   }}
                   onClick={() => (window.location.pathname = "/mypage")}
                 >

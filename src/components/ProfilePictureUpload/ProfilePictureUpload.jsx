@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Modal from "react-modal";
 import { AuthContext } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -24,7 +24,7 @@ const ProfilePictureUpload = () => {
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files);
     setSelectedFiles(files);
-    console.log(files);
+
     const filePreviews = files.map((file) => URL.createObjectURL(file));
     setPreviews(filePreviews);
   };
@@ -45,10 +45,6 @@ const ProfilePictureUpload = () => {
       }
     };
     uploadUserImages(formData).then(uploadUserImagesResponse);
-  };
-
-  const handleImageClick = () => {
-    setShowModal(true);
   };
 
   const closeModal = () => {

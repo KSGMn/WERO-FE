@@ -3,7 +3,7 @@ import Card from "../components/Card/Card";
 import { useFeeds } from "../context/FeedContext";
 import { AuthContext } from "../context/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart as fasHeart, faXmark, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as fasHeart, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as farHeart } from "@fortawesome/free-regular-svg-icons";
 
 const MoodyMatchComponent = () => {
@@ -38,11 +38,6 @@ const MoodyMatchComponent = () => {
     });
   };
 
-  const popBtn = () => {
-    setMoodyIndex(moodyIndex + -1);
-  };
-
-  console.log(MoodyMatchFeeds);
   const btnStyle = {
     borderRadius: "50%", // 원형 모양
     width: "90px", // 버튼의 너비

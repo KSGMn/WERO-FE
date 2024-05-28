@@ -5,15 +5,23 @@ import googleLoginCircle from "../../assets/buttons/google_login_circle.png";
 import kakaoLoginCircle from "../../assets/buttons/kakao_login_circle.png";
 import { LoginButtonCircle } from "../LoginButton/LoginButtons";
 import { ResponseBody } from "../../types";
-import { SignInResponseDto } from "../../api/response/auth";
+import { IdCheckResponseDto, SignInResponseDto } from "../../api/response/auth";
 import { ResponseCode } from "../../types/enums";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
-import { SignInRequestDto } from "../../api/request/auth";
-import { SNS_SIGN_IN_URL, signInRequest, updateUserProfile } from "../../api";
+import { IdCheckRequestDto, SignInRequestDto } from "../../api/request/auth";
+import { SNS_SIGN_IN_URL, idCheckRequest, signInRequest, updateUserProfile } from "../../api";
 import { AuthContext } from "../../context/AuthContext";
 import DeleteUserRequestDto from "../../api/request/user/delete-user.request.dto";
 import UpdateUserRequestDto from "../../api/request/user/update-user.request.dto";
+import { faL } from "@fortawesome/free-solid-svg-icons";
+
+interface FormMessages {
+  email?: string;
+  id?: string;
+  nickName?: string;
+  password?: string;
+}
 
 const MyPageEdit = () => {
   const { user, setUser, deleteUser, loading } = useContext(AuthContext);
@@ -22,13 +30,16 @@ const MyPageEdit = () => {
   const [id, setId] = useState(user.user_id);
   const [nickName, setNickName] = useState(user.userName);
   const [password, setPassword] = useState("");
+  const [alterPassword, setAlterPassword] = useState("");
   const [gender, setGender] = useState(user.gender);
-
-  const [isError, setError] = useState<boolean>(false);
-
-  const [message, setMessage] = useState<string>("");
-
-  const [cookie, setCookie] = useCookies();
+  const [emailError, setEmailError] = useState<boolean>(false);
+  const [idError, setIdError] = useState<boolean>(false);
+  const [nickNameError, setNickNameError] = useState<boolean>(false);
+  const [passwordError, setPasswordError] = useState<boolean>(false);
+  const [emailMessage, setEmailMessage] = useState<string>("");
+  const [idMessage, setIdMessage] = useState<string>("");
+  const [nickNameMessage, setNickNameMessage] = useState<string>("");
+  const [passwordMessage, setPasswordMessage] = useState<string>("");
 
   const [editClick, setEditClick] = useState<boolean>(false);
 
@@ -53,48 +64,13 @@ const MyPageEdit = () => {
       setId(value);
     } else if (name === "password") {
       setPassword(value);
+    } else if (name === "alter-password") {
+      setAlterPassword(value);
     } else if (name === "email") {
       setEmail(value);
     } else if (name === "nickname") {
       setNickName(value);
     }
-  };
-
-  const signInResponse = (responseBody: ResponseBody<SignInResponseDto>) => {
-    if (!responseBody) return;
-
-    const { code } = responseBody;
-    if (code === ResponseCode.VALIDATION_FAIL) alert("아이디와 비밀번호를 입력하세요.");
-    if (code === ResponseCode.SIGN_IN_FAIL) {
-      setError(true);
-      setMessage("아이디 또는 비밀번호가 일치하지 않습니다.");
-    }
-    if (code === ResponseCode.DATABASE_ERROR) alert("데이터베이스 오류입니다.");
-    if (code === ResponseCode.SUCCESS) {
-      const { token, expirationTime, userId } = responseBody as SignInResponseDto;
-
-      const now = new Date().getTime();
-      const expires = new Date(now + Number(expirationTime) * 1000);
-
-      setUser({ ...user, user_id: userId });
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("user_id", userId);
-
-      setError(false);
-      setCookie("accessToken", token, { expires, path: "/" });
-      navigate("/");
-    }
-  };
-
-  const onSignInButtonClickHandler = (event: any) => {
-    event.preventDefault();
-    if (!id || !password) {
-      alert("아이디와 비밀번호 모두 입력하세요.");
-      return;
-    }
-
-    const requestBody: SignInRequestDto = { id, password };
-    signInRequest(requestBody).then(signInResponse);
   };
 
   const onEditButton = () => {
@@ -112,12 +88,21 @@ const MyPageEdit = () => {
   };
 
   const onSaveButton = async () => {
-    try {
-      const requestBody: UpdateUserRequestDto = { email, password, nickName, gender };
-      await updateUserProfile(requestBody);
-    } catch (error) {
-      console.log("User Profile Update Fail");
-    }
+    setNickNameError(false);
+    setNickNameMessage("");
+    setPasswordError(false);
+    setPasswordMessage("");
+    const requestBody: UpdateUserRequestDto = { email, password, nickName, gender };
+    await updateUserProfile(requestBody).then((data) => {
+      if (data.code === "DN") {
+        setNickNameError(true);
+        setNickNameMessage("이미 사용중인 닉네임 입니다.");
+      }
+      if (data.code === "VF") {
+        setPasswordError(true);
+        setPasswordMessage("기존 비밀번호가 아닙니다.");
+      }
+    });
   };
 
   const onCancleButton = () => {
@@ -125,6 +110,12 @@ const MyPageEdit = () => {
     setId(user.user_id);
     setNickName(user.userName);
     setEditClick(false);
+    setNickNameError(false);
+    setNickNameMessage("");
+    setPasswordError(false);
+    setPasswordMessage("");
+    setPassword("");
+    setAlterPassword("");
   };
 
   const bottomButton = () => {
@@ -145,7 +136,7 @@ const MyPageEdit = () => {
             저장
           </div>
           <div className="btn btn-primary" style={{ width: "80px" }} onClick={() => onCancleButton()}>
-            Cancle
+            취소
           </div>
         </>
       );
@@ -179,11 +170,7 @@ const MyPageEdit = () => {
         <div className="align-self-start fs-4" style={{ padding: "10px" }}>
           회원정보
         </div>
-        <form
-          className="mypage-edit-form d-flex flex-column align-items-center "
-          onSubmit={onSignInButtonClickHandler}
-          style={{ position: "relative" }}
-        >
+        <form className="mypage-edit-form d-flex flex-column align-items-center " style={{ position: "relative" }}>
           <div className="mypage-edit-inputbox d-flex flex-row">
             <label className="mypage-edit-input-label">Email</label>
             <input
@@ -195,8 +182,12 @@ const MyPageEdit = () => {
               required
               readOnly={editClick ? false : true}
             />
-            {message && <div className={`${!isError ? "success-message" : "error-message"}`}>{message}</div>}
           </div>
+          {emailMessage && (
+            <div className={`${!emailError ? "mypage-edit-success-message" : "mypage-edit-error-message"}`}>
+              {emailMessage}
+            </div>
+          )}
           <div className="mypage-edit-inputbox d-flex flex-row">
             <label className="mypage-edit-input-label">ID</label>
             <input
@@ -208,8 +199,12 @@ const MyPageEdit = () => {
               required
               readOnly={editClick ? false : true}
             />
-            {message && <div className={`${!isError ? "success-message" : "error-message"}`}>{message}</div>}
           </div>
+          {idMessage && (
+            <div className={`${!idError ? "mypage-edit-success-message" : "mypage-edit-error-message"}`}>
+              {idMessage}
+            </div>
+          )}
 
           <div className="mypage-edit-inputbox d-flex flex-row">
             <label className="mypage-edit-input-label">NickName</label>
@@ -222,13 +217,17 @@ const MyPageEdit = () => {
               required
               readOnly={editClick ? false : true}
             />
-            {message && <div className={`${!isError ? "success-message" : "error-message"}`}>{message}</div>}
           </div>
+          {nickNameMessage && (
+            <div className={`${!nickNameError ? "mypage-edit-success-message" : "mypage-edit-error-message"}`}>
+              {nickNameMessage}
+            </div>
+          )}
           <div className="mypage-edit-inputbox d-flex flex-row">
             <label className="mypage-edit-input-label">PW</label>
             <input
               className={editClick ? "mypage-edit-input" : "mypage-edit-input-read"}
-              type="text"
+              type="password"
               name="password"
               value={password}
               onChange={handleChange}
@@ -236,20 +235,24 @@ const MyPageEdit = () => {
               placeholder="현재 비밀번호를 입력하세요"
               readOnly={editClick ? false : true}
             />
-            {message && <div className={`${!isError ? "success-message" : "error-message"}`}>{message}</div>}
           </div>
+          {passwordMessage && (
+            <div className={`${!passwordError ? "mypage-edit-success-message" : "mypage-edit-error-message"}`}>
+              {passwordMessage}
+            </div>
+          )}
           <div className="mypage-edit-inputbox d-flex flex-row">
             <label className="mypage-edit-input-label">Alter-PW</label>
             <input
               className={editClick ? "mypage-edit-input" : "mypage-edit-input-read"}
-              type="text"
-              name="password"
+              type="password"
+              name="alter-password"
+              value={alterPassword}
               onChange={handleChange}
               required
               placeholder="변경할 비밀번호를 입력하세요"
               readOnly={editClick ? false : true}
             />
-            {message && <div className={`${!isError ? "success-message" : "error-message"}`}>{message}</div>}
           </div>
           <div className="mypage-edit-inputbox d-flex flex-row">
             <label className="mypage-edit-input-label">Gender</label>
@@ -262,7 +265,6 @@ const MyPageEdit = () => {
               required
               readOnly={editClick ? false : true}
             />
-            {message && <div className={`${!isError ? "success-message" : "error-message"}`}>{message}</div>}
           </div>
 
           <div className="bottom-button-container">{bottomButton()}</div>
@@ -273,11 +275,7 @@ const MyPageEdit = () => {
           소셜 로그인 관리 / 회원 탈퇴
         </div>
         {user.platform_type === "kakao" || user.platform_type === "naver" || user.platform_type === "google" ? (
-          <form
-            className="mypage-edit-form d-flex flex-column align-items-center "
-            onSubmit={onSignInButtonClickHandler}
-            style={{ position: "relative" }}
-          >
+          <form className="mypage-edit-form d-flex flex-column align-items-center " style={{ position: "relative" }}>
             <div className="mypage-edit-inputbox d-flex flex-row">
               <label className="mypage-edit-input-label">서비스명</label>
               <div className="d-flex align-items-center">{user.platform_type}</div>
@@ -302,11 +300,7 @@ const MyPageEdit = () => {
             </div>
           </form>
         ) : (
-          <form
-            className="mypage-edit-form d-flex flex-column align-items-center "
-            onSubmit={onSignInButtonClickHandler}
-            style={{ position: "relative" }}
-          >
+          <form className="mypage-edit-form d-flex flex-column align-items-center " style={{ position: "relative" }}>
             <div className="mypage-edit-inputbox d-flex flex-row">
               <label className="mypage-edit-input-label-sns">
                 <LoginButtonCircle serviceName="Google" logo={googleLoginCircle} onClick={handleGoogleLogin} />

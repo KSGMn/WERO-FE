@@ -5,7 +5,6 @@ const NaverLoginCallback = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("이건가?");
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
     const state = urlParams.get("state");
@@ -20,7 +19,6 @@ const NaverLoginCallback = () => {
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log("로그인 성공:", data);
           navigate("/sidebar"); // 성공적 로그인 후 리다이렉트할 경로
         })
         .catch((error) => {

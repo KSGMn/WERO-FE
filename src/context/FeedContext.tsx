@@ -1,4 +1,4 @@
-import React, { ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import {
   changeDiaryBookmark,
   feedAddLike,
@@ -8,11 +8,12 @@ import {
   findAllReport,
   findLikeFeed,
   findMyFeed,
+  findSuspensionUsers,
   moodyMatchFeed,
+  nonMemberFindAllFeed,
 } from "../api";
 import { AuthContext } from "./AuthContext";
 import { useLocation } from "react-router-dom";
-import Cookies from "js-cookie";
 
 interface Feed {
   mainfeed_id: number;
@@ -38,10 +39,16 @@ interface Diary {
 interface ReportFeed {
   reportId: number;
   mainfeedId: number;
+  mainfeedUserId: string;
   reportContent: string;
   reportedTime: string;
 }
 
+interface SuspensionUsers {
+  userId: string;
+  email: string;
+  restriction: boolean;
+}
 type FeedContextType = {
   feeds: Feed[];
   setFeeds: React.Dispatch<React.SetStateAction<Feed[]>>;
@@ -51,17 +58,26 @@ type FeedContextType = {
   setMoodyMatchFeeds: React.Dispatch<React.SetStateAction<Feed[]>>;
   LikeFeeds: Feed[];
   setLikeFeeds: React.Dispatch<React.SetStateAction<Feed[]>>;
+  searchContentFeeds: Feed[];
+  setSearchContentFeeds: React.Dispatch<React.SetStateAction<Feed[]>>;
+  searchCategoryFeeds: Feed[];
+  setSearchCategoryFeeds: React.Dispatch<React.SetStateAction<Feed[]>>;
   diaries: Diary[];
   setDiaries: React.Dispatch<React.SetStateAction<Diary[]>>;
   reports: ReportFeed[];
   setReports: React.Dispatch<React.SetStateAction<ReportFeed[]>>;
+  suspensionUsers: SuspensionUsers[];
+  setSuspensionUsers: React.Dispatch<React.SetStateAction<SuspensionUsers[]>>;
   loading: Boolean;
-  setLoading: (arg: Boolean) => void;
+  setLoading: (loading: boolean) => void;
   toggleLike: (arg: number, arg1: boolean) => {};
   toggleBookmark: (arg: string) => {};
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   loadMoreFeeds: () => void;
+  setIsFetching: React.Dispatch<React.SetStateAction<boolean>>;
+  setInitialLoad: React.Dispatch<React.SetStateAction<boolean>>;
+  setHasMore: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 interface FeedProviderProps {
@@ -78,6 +94,11 @@ export interface ApiReportResponse {
   code: string;
   message: string;
   data: ReportFeed[];
+}
+export interface ApiSuspensionResponse {
+  code: string;
+  message: string;
+  data: SuspensionUsers[];
 }
 
 export interface ApiOneResponse {
@@ -117,27 +138,68 @@ interface LikeResponse {
 export const FeedContext = createContext<FeedContextType | undefined>(undefined);
 
 export const FeedProvider = ({ children }: FeedProviderProps) => {
-  const [token, setToken] = useState(Cookies.get("accessToken"));
   const [feeds, setFeeds] = useState<Feed[]>([]);
   const [MyFeeds, setMyFeeds] = useState<Feed[]>([]);
   const [MoodyMatchFeeds, setMoodyMatchFeeds] = useState<Feed[]>([]);
   const [LikeFeeds, setLikeFeeds] = useState<Feed[]>([]);
+  const [searchContentFeeds, setSearchContentFeeds] = useState<Feed[]>([]);
+  const [searchCategoryFeeds, setSearchCategoryFeeds] = useState<Feed[]>([]);
   const [diaries, setDiaries] = useState<Diary[]>([]);
   const [reports, setReports] = useState<ReportFeed[]>([]);
-  const [loading, setLoading] = useState<Boolean>(true);
+  const [suspensionUsers, setSuspensionUsers] = useState<SuspensionUsers[]>([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
   const [initialLoad, setInitialLoad] = useState(false);
+  const [historyInitialLoad, setHistoryInitialLoad] = useState(false);
 
-  const { user } = useContext(AuthContext);
+  const { user, token, loading, setLoading } = useContext(AuthContext);
 
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname === "/admin" && !initialLoad) {
+    if (token && user) return;
+    if (location.pathname === "/" && !initialLoad) {
+      const nonMemberFindAllFeedResponse = (newFeeds: ApiResponse) => {
+        if (Array.isArray(newFeeds.data)) {
+          setFeeds((prevFeeds) => [...prevFeeds, ...newFeeds.data]);
+          setHasMore(newFeeds.data.length > 0);
+          setIsFetching(false);
+          setInitialLoad(true);
+        } else {
+          setHasMore(false);
+        }
+      };
+      nonMemberFindAllFeed(page).then(nonMemberFindAllFeedResponse);
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+    if (location.pathname.includes("suspension") && !initialLoad) {
+      const findSuspensionResponse = (newSuspesion: ApiSuspensionResponse) => {
+        if (suspensionUsers.length !== 0) {
+          setSuspensionUsers([]);
+        }
+        if (Array.isArray(newSuspesion.data)) {
+          setSuspensionUsers((prevSuspension) => [...prevSuspension, ...newSuspesion.data]);
+          setHasMore(newSuspesion.data.length > 0);
+          setIsFetching(false);
+          setInitialLoad(true);
+        } else {
+          setHasMore(false);
+        }
+      };
+      findSuspensionUsers(page).then(findSuspensionResponse);
+      setLoading(false);
+    }
+    if ((location.pathname.includes("reports") && !initialLoad) || (location.pathname === "/admin" && !initialLoad)) {
       const findAllReportResponse = (newReports: ApiReportResponse) => {
         if (Array.isArray(newReports.data)) {
+          setReports([]);
           setReports((prevReports) => [...prevReports, ...newReports.data]);
           setHasMore(newReports.data.length > 0);
           setIsFetching(false);
@@ -150,7 +212,6 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
       setLoading(false);
     }
     if (location.pathname === "/" && !initialLoad) {
-      console.log(user);
       const findAllFeedResponse = (newFeeds: ApiResponse) => {
         if (Array.isArray(newFeeds.data)) {
           setFeeds((prevFeeds) => [...prevFeeds, ...newFeeds.data]);
@@ -161,21 +222,26 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
           setHasMore(false);
         }
       };
-      findAllFeed(user.user_id, page).then(findAllFeedResponse);
+      findAllFeed(page, token).then(findAllFeedResponse);
       setLoading(false);
     }
     if (token && user.user_id) {
-      if (location.pathname === "/mypage" || location.pathname === "/history") {
+      if (
+        (location.pathname === "/mypage" && !historyInitialLoad) ||
+        (location.pathname === "/history" && !historyInitialLoad)
+      ) {
         const findMyFeedResponse = (newMyFeeds: ApiResponse) => {
           if (newMyFeeds) {
             setMyFeeds((prevFeeds) => [...prevFeeds, ...newMyFeeds.data]);
-
             setHasMore(newMyFeeds.data.length > 0);
             setIsFetching(false);
-            setLoading(false);
+            setHistoryInitialLoad(true);
+          } else {
+            setHasMore(false);
           }
         };
-        findMyFeed(user.user_id, page).then(findMyFeedResponse);
+        findMyFeed(page).then(findMyFeedResponse);
+        setLoading(false);
       }
       if (location.pathname === "/mypage" || location.pathname === "/likes") {
         const findLikeFeedResponse = (newLikeFeeds: ApiResponse) => {
@@ -185,32 +251,32 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
             setLoading(false);
           }
         };
-        findLikeFeed(user.user_id).then(findLikeFeedResponse);
+        findLikeFeed().then(findLikeFeedResponse);
       }
       if (location.pathname === "/moody-match") {
         const moodyMatchFeedResponse = (newMoodyMatchFeeds: ApiResponse) => {
           if (newMoodyMatchFeeds) {
             setMoodyMatchFeeds(newMoodyMatchFeeds.data);
             setIsFetching(false);
-            setLoading(false);
           }
         };
         moodyMatchFeed(user.user_id).then(moodyMatchFeedResponse);
+        setLoading(false);
       }
       if (location.pathname === "/diary") {
         const findAllDiaryResponse = (newDiaries: ApiDiaryResponse) => {
           if (newDiaries) {
             setDiaries(newDiaries.list);
             setIsFetching(false);
-            setLoading(false);
           }
         };
         findAllDiary().then(findAllDiaryResponse);
+        setLoading(false);
       }
     } else {
-      setLoading(true);
+      location.pathname !== "/login" ? setLoading(true) : setLoading(false);
     }
-  }, [location, user.user_id, page]);
+  }, [location, page]);
 
   const toggleLike = async (mainfeed_id: number, isLiked: boolean) => {
     if (!feeds || !MyFeeds || !LikeFeeds) return;
@@ -221,9 +287,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
 
     if (!feed && !myFeed && !likeFeed && !mainfeed_id) return;
 
-    const response = (await (!isLiked
-      ? feedAddLike(user.user_id, mainfeed_id)
-      : feedDeleteLike(user.user_id, mainfeed_id))) as LikeResponse;
+    const response = (await (!isLiked ? feedAddLike(mainfeed_id) : feedDeleteLike(mainfeed_id))) as LikeResponse;
 
     if (response.code !== "CA" && response.code !== "SU") {
       console.error("Failed to toggle like");
@@ -234,7 +298,6 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
     if (!diaries) return;
 
     const response = (await changeDiaryBookmark(diaryId)) as DefaultResponse;
-    console.log(response);
 
     if (response.code !== "SU") {
       console.error("Failed to toggle bookmark");
@@ -246,6 +309,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
       setIsFetching(true); // 추가 로드 시작
       setPage((prevPage) => {
         setInitialLoad(false);
+        setHistoryInitialLoad(false);
         const newPage = prevPage + 1;
         return newPage;
       });
@@ -274,6 +338,15 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
         loadMoreFeeds,
         reports,
         setReports,
+        setInitialLoad,
+        setIsFetching,
+        suspensionUsers,
+        setSuspensionUsers,
+        searchCategoryFeeds,
+        setSearchCategoryFeeds,
+        searchContentFeeds,
+        setSearchContentFeeds,
+        setHasMore,
       }}
     >
       {children}

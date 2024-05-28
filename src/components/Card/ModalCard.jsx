@@ -43,6 +43,7 @@ const ModalCard = ({
   }, [content, location.pathname]);
 
   const getToggleLikeFunction = () => {
+    if (user.user_id === "") return alert("로그인 후 이용 가능합니다");
     if (isRequesting) return; // 이미 요청 중이면 무시
     setIsRequesting(true);
 

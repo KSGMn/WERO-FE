@@ -1,0 +1,78 @@
+/* AdminComponent */
+
+.admin-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.admin-title {
+  margin-bottom: 20px;
+  font-size: 2.5em;
+  color: #333;
+}
+
+.button-container {
+  display: flex;
+  gap: 20px;
+}
+
+.button-container a {
+  text-decoration: none;
+}
+
+.styled-button {
+  padding: 10px 20px;
+  font-size: 1em;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.styled-button:hover {
+  background-color: #0056b3;
+}
+
+/* AdminComponent */
+
+.table-container {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: 450px;
+}
+
+.table th,
+.table td {
+  vertical-align: middle !important;
+  text-align: center;
+}
+
+.table .delete-btn {
+  cursor: pointer;
+  color: #d9534f;
+  font-weight: bold;
+}
+
+.table .delete-btn:hover {
+  color: #c9302c;
+  text-decoration: underline;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination-item.active a {
+  background-color: #007bff !important;
+  border-color: #007bff !important;
+  color: white !important;
+}

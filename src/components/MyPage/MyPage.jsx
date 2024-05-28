@@ -1,17 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import "./MyPage.css";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import HistoryComponent from "../../layout/HistoryComponent";
-import LikeComponent from "../../layout/LikeComponent";
 
 const MyPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { user, logout, unlink_res, loading } = useContext(AuthContext);
-
-  console.log(user.platform_type);
+  const { user, logout } = useContext(AuthContext);
 
   const handleLogout = async () => {
     // if (user.platform_type === "kakao") {

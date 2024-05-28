@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import Card from "../components/Card/Card";
+
 import { AuthContext } from "../context/AuthContext";
 import Modal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark, faPen, faTrash, faFloppyDisk, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import "../components/Modal/Modal.css";
 import { ApiOneDiaryResponse, ApiOneResponse, useFeeds } from "../context/FeedContext";
 import {
@@ -26,8 +26,8 @@ import CreateDiaryRequestDto from "../api/request/diary/create-diary.request.dto
 import UpdateDiaryRequestDto from "../api/request/diary/update-diary.request.dto";
 import { deleteDiary } from "../api/index";
 
-// 모달을 마운트할 요소 설정
-Modal.setAppElement("#root");
+// // 모달을 마운트할 요소 설정
+// Modal.setAppElement("#root");
 
 interface ModalProps {
   isOpen: boolean;
@@ -39,17 +39,17 @@ interface ModalProps {
 
 const ReadPostComponent: React.FC<ModalProps> = () => {
   const { user } = useContext(AuthContext);
-  const { id } = useParams();
+  const { id, query } = useParams();
   const { state } = useLocation();
   const { content, trackName, userId, image, isLiked, category, isBookmarked } = state || {};
 
-  const [originalContent, setOriginalContent] = useState(content);
-  const [originalTrackName, setOriginalTrackName] = useState(trackName);
-  const [originalBackground, setOriginalBackground] = useState(image ? image : "white");
-  const [originalEmotion, setOriginalEmotion] = useState(category);
+  const [originalContent] = useState(content);
+  const [originalTrackName] = useState(trackName);
+  const [originalBackground] = useState(image ? image : "white");
+  const [originalEmotion] = useState(category);
   const [isContent, setIsContent] = useState(content);
   const [Liked, setLiked] = useState(isLiked);
-  const [Bookmarked, setBookmarked] = useState(isBookmarked);
+  const [Bookmarked] = useState(isBookmarked);
   const [isTrackName, setIsTrackName] = useState(trackName);
   const [selectedEmotion, setSelectedEmotion] = useState(category ? category : "");
   const [selectedBackground, setSelectedBackground] = useState(image ? image : "white");
@@ -73,13 +73,12 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
   }
 
   useEffect(() => {
-    if (location.pathname.includes("/read/") || location.pathname.includes("/edit/")) {
+    if (location.pathname.includes("read") || location.pathname.includes("edit")) {
       setIsOpen(true);
-    }
-    if (id === "-1") {
       setIsLoading(false);
-      return;
     }
+    if (user.user_id === "") return;
+
     if (location.pathname.startsWith("/read/")) {
       const findOneFeedResponse = (getFeed: ApiOneResponse) => {
         if (getFeed) {
@@ -89,7 +88,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
           setLiked(getFeed.data.liked);
         }
       };
-      findOneFeed(user.user_id, parseInt(id)).then(findOneFeedResponse);
+      findOneFeed(parseInt(id)).then(findOneFeedResponse);
     }
     if (location.pathname.includes("/diary/read")) {
       const findOneDiaryResponse = (getDiary: ApiOneDiaryResponse) => {
@@ -119,6 +118,20 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     }
     return false;
   };
+  const startsWithsMypageHistory = () => {
+    if (location.pathname.startsWith("/mypage/history")) {
+      navigate("/mypage/history");
+      return true;
+    }
+    return false;
+  };
+  const startsWithsMypageLikes = () => {
+    if (location.pathname.startsWith("/mypage/likes")) {
+      navigate("/mypage/likes");
+      return true;
+    }
+    return false;
+  };
   const startsWithsDiary = () => {
     if (location.pathname.startsWith("/diary")) {
       navigate("/diary");
@@ -141,13 +154,32 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     return false;
   };
 
+  const startsWithsSearchs = () => {
+    if (location.pathname.startsWith("/search")) {
+      navigate(`/search/${query}`);
+      return true;
+    }
+    return false;
+  };
+
+  const startsWithsCategorySearchs = () => {
+    if (location.pathname.startsWith("/category/search")) {
+      navigate(`/category/search/${query}`);
+      return true;
+    }
+    return false;
+  };
+
   const onRequestClose = () => {
     setIsOpen(false);
     if (startsWithsMypage()) return;
+    if (startsWithsMypageHistory()) return;
+    if (startsWithsMypageLikes()) return;
     if (startsWithsHistory()) return;
     if (startsWithsDiary()) return;
     if (startsWithsLikes()) return;
-
+    if (startsWithsSearchs()) return;
+    if (startsWithsCategorySearchs()) return;
     navigate("/");
   };
 
@@ -158,14 +190,11 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
   const onUpdatePage = () => {
     if (location.pathname.startsWith("/mypage/")) return navigate(`/mypage/edit/${id}`);
     if (location.pathname.startsWith("/diary/")) return navigate(`/diary/edit/${id}`);
+    if (location.pathname.startsWith("/likes/")) return navigate(`/likes/edit/${id}`);
+    if (location.pathname.startsWith("/history/")) return navigate(`/history/edit/${id}`);
+    if (location.pathname.startsWith("/search/")) return navigate(`/search/edit/${id}`);
+    if (location.pathname.startsWith("/category/search/")) return navigate(`/category/search/edit/${id}`);
     return navigate(`/edit/${id}`);
-  };
-
-  const onPagePop = () => {
-    setIsContent(isContent);
-    setSelectedEmotion(selectedEmotion);
-    setSelectedBackground(selectedBackground);
-    navigate(-1);
   };
 
   const renderModalTitle = () => {
@@ -201,7 +230,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
           category: selectedEmotion,
           image: selectedBackground,
         };
-        createFeed(requestBody, user.user_id).then(createFeedsResponse);
+        createFeed(requestBody).then(createFeedsResponse);
         setIsConfirmModalOpen(true);
       }
       return;
@@ -252,7 +281,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
           category: selectedEmotion,
           image: selectedBackground,
         };
-        updateFeed(requestBody, user.user_id, parseInt(id)).then(updateFeedResponse);
+        updateFeed(requestBody, parseInt(id)).then(updateFeedResponse);
         navigate(-1);
         return;
       }
@@ -288,15 +317,12 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     }
   };
 
-  const openComfirmModal = () => {
-    setIsConfirmModalOpen(true);
-  };
-
   const openDeleteComfirmModal = () => {
     setIsDeleteConfirmModalOpen(true);
   };
 
   const openReportComfirmModal = () => {
+    if (user.user_id === "") return alert("로그인 후 이용 가능합니다");
     setIsReportConfirmModalOpen(true);
   };
 
@@ -320,7 +346,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     if (location.pathname.includes("diary")) {
       deleteDiary(parseInt(id));
     } else {
-      deleteFeed(user.user_id, parseInt(id));
+      deleteFeed(parseInt(id));
     }
 
     if (startsWithsMypage()) return;

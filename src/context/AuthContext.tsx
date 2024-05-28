@@ -1,9 +1,7 @@
-import React, { createContext, useState, ReactNode, useEffect, Dispatch, SetStateAction } from "react";
-import { Logout, deleteUserProfile, getUserImages, getUserProfile, updateUserProfile } from "../api";
+import { createContext, useState, ReactNode, useEffect, Dispatch, SetStateAction } from "react";
+import { Logout, deleteUserProfile, getUserImages, getUserProfile } from "../api";
 import Cookies from "js-cookie";
 import axios from "axios";
-import UpdateUserRequestDto from "../api/request/user/update-user.request.dto";
-import { useLocation, useNavigate } from "react-router-dom";
 
 interface User {
   email: string;
@@ -33,8 +31,8 @@ interface AuthContextType {
   setGetUser: (getuser: getUser) => void;
   isLoggedIn: boolean;
   setLoggedIn: (isLoggedIn: boolean) => void;
-  token: string | undefined;
-  setToken: Dispatch<SetStateAction<string | undefined>>;
+  token: string | null;
+  setToken: Dispatch<SetStateAction<string | null>>;
   loading: boolean;
   setLoading: (loading: boolean) => void;
   logout: () => Promise<boolean>;
@@ -109,16 +107,16 @@ export const AuthContext = createContext<AuthContextType>(initialAuthState);
 //export const useUser = () => useContext(AuthContext);
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  const [token, setToken] = useState(Cookies.get("accessToken"));
+  const [token, setToken] = useState<string | null>(Cookies.get("accessToken") || null);
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   const [getUser, setGetUser] = useState<getUser | undefined>(undefined);
 
   const [user, setUser] = useState<User>({
-    email: getUser?.email || "",
-    user_id: getUser?.userId || "",
-    userName: getUser?.nickName || "",
+    email: "",
+    user_id: "",
+    userName: "",
     passWord: "",
     profile_image: "",
     bio: "오늘..",
@@ -127,34 +125,28 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   });
 
   const [userImages, setUserImages] = useState([]);
-
   useEffect(() => {
     const checkLoginStatus = () => {
       const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
       const token = Cookies.get("accessToken");
 
+      if (!token && isLoggedIn) {
+        logout();
+      }
+
       if (isLoggedIn && token) {
         setLoggedIn(true);
         setToken(token);
-        console.log("로그인 상태 및 토큰 설정됨");
       } else {
-        console.log("로그인 상태가 아니거나 토큰이 없음");
+        setLoading(false);
       }
     };
 
     checkLoginStatus();
-
-    // 로그인 상태나 토큰이 변경될 때마다 확인
-    window.addEventListener("storage", checkLoginStatus);
-    return () => {
-      window.removeEventListener("storage", checkLoginStatus);
-    };
-  }, []);
+  }, [isLoggedIn, token]);
 
   useEffect(() => {
     if (token) {
-      setLoading(true);
-      console.log(Cookies.get("accessToken"));
       const getUserResponse = (user: ApiUserResponse) => {
         if (user.code === "SU") {
           setGetUser(user.data);
@@ -169,12 +161,12 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       };
       getUserImages(token).then(getUserImagesResponse);
     }
-  }, [token, loading]);
+  }, [loading]);
 
   //getUser가 업데이트될 때 user 상태를 설정
   useEffect(() => {
-    if (getUser) {
-      const encodedFileName = userImages[0];
+    if (getUser && isLoggedIn) {
+      const encodedFileName = userImages[userImages.length - 1];
       const decodedFileName = decodeURIComponent(encodedFileName);
       const imageUrl = `http://localhost:8080/uploads/${decodedFileName}`;
       setUser({
@@ -189,7 +181,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       });
       setLoading(false);
     }
-  }, [getUser, userImages, loading]);
+  }, [getUser]);
 
   // console.log(token);
   // const getKaKaoUserData = async (token: any) => {
@@ -240,7 +232,6 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         }
       );
 
-      console.log(response.data);
       return true;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -259,7 +250,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       localStorage.removeItem("user_id"); // 로컬 스토리지에서 인증 상태 제거
 
       setLoggedIn(false);
-      setUser({ ...user, user_id: "" });
+      const emptyUser = Object.keys(user).reduce((acc: any, key: any) => {
+        acc[key] = "";
+        return acc;
+      }, {});
+      setUser(emptyUser);
 
       // 쿠키 삭제
       Cookies.remove("accessToken", { path: "/" }); // 액세스 토큰 삭제
@@ -305,7 +300,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         setToken,
       }}
     >
-      {loading ? <div>Loading...</div> : children}
+      {loading ? <div></div> : children}
     </AuthContext.Provider>
   );
 }

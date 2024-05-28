@@ -16,7 +16,6 @@ export const OauthComponent = () => {
     setCookie("accessToken", token, { expires, path: "/" });
     navigate("/");
   }, [token, expirationTime, setCookie, navigate]);
-  console.log(`토큰: ${token}`);
 
   return <div>Oauth</div>;
 };
