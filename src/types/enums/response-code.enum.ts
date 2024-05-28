@@ -9,6 +9,8 @@ enum ResponseCode {
   CERTIFICATION_FAIL = "CF",
 
   DATABASE_ERROR = "DBE",
+
+  SUSPENSION_USER = "RU",
 }
 
 export default ResponseCode;

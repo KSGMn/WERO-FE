@@ -1,0 +1,33 @@
+@font-face {
+  font-family: "Cantarell-Bold";
+  src: url("../fonts/Cantarell-Bold.ttf") format("truetype");
+}
+
+.add-icon {
+  color: black;
+  font-size: 15px;
+  text-decoration: none;
+  width: 80px;
+  margin-left: 30px;
+}
+
+.add-icon:hover {
+  color: #ccc;
+}
+
+.home-btn {
+  font-family: "Cantarell-Bold";
+  font-size: 30px;
+  text-decoration: none;
+  color: black;
+}
+
+.center-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px; /* 뷰포트 높이의 100%를 사용하여 항상 화면 중앙에 위치하도록 함 */
+  font-size: 1.5rem; /* 글씨 크기를 조정 */
+  color: #555; /* 글씨 색상을 조정 */
+  font-family: Arial, sans-serif; /* 글꼴 지정 */
+}

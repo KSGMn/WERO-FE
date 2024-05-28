@@ -1,5 +1,4 @@
 .card {
-  background-color: white;
   border: none;
   border-radius: 8px;
   width: 100%; /* Adjust width as needed */
@@ -13,7 +12,18 @@
 .card-header {
   display: flex;
   flex-direction: column;
-  height: 80%;
+  height: 100%;
+  border: none;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background-color: transparent;
+}
+
+.card-header-diary {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: none;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 }
@@ -26,11 +36,17 @@
   justify-content: center;
 }
 
+.card-content-text {
+  background-color: lightgrey;
+  padding: 4px 8px;
+  color: white;
+}
+
 .card-icons {
   display: flex;
   justify-content: end;
   gap: 8px; /* Adjust spacing between icons as needed */
-  height: 20%;
+  height: 30px;
 }
 
 .icon-button {
@@ -42,23 +58,136 @@
 .card-title {
   display: flex;
   height: 20%;
-  background: #3f5060;
   align-items: center;
   justify-content: center;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
+  border: none;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.6);
+  margin: 0;
 }
 
 .card-title p {
   font-size: 1rem; /* Adjust font-size as needed */
   margin: 0;
-  color: white;
+  color: black;
+}
+
+.input-content-with-placeholder {
+  font-size: 1rem;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.6);
+  color: black;
+  outline: none;
+  padding: 4px 8px;
+  text-align: center;
+  height: auto;
+}
+
+.input-content-with-placeholder-diary {
+  font-size: 1rem;
+  border: none;
+  color: black;
+  outline: none;
+  padding: 4px 8px;
+  background-color: rgba(255, 255, 255, 0.5);
+  color: black;
+  text-align: center;
+  height: auto;
+}
+
+.input-title-with-placeholder-diary {
+  font-size: 1rem;
+  border: none;
+  color: black;
+  background-color: transparent;
+  outline: none;
+  padding: 4px 8px;
+  text-align: center;
+  height: auto;
+}
+
+.input-content-with-placeholder-read {
+  font-size: 1rem;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.6);
+  color: black;
+  outline: none;
+  padding: 4px 8px;
+  text-align: center;
+  height: auto;
+  cursor: pointer;
+  resize: none;
+}
+
+.input-content-with-placeholder-diary-read {
+  font-size: 1rem;
+  border: none;
+  color: black;
+  outline: none;
+  padding: 4px 8px;
+  background-color: rgba(255, 255, 255, 0.6);
+  color: black;
+  text-align: center;
+  height: auto;
+  cursor: pointer;
+  resize: none;
+}
+
+.input-title-with-placeholder-diary-read {
+  font-size: 1rem;
+  border: none;
+  color: black;
+  outline: none;
+  background-color: transparent;
+  padding: 4px 8px;
+  color: black;
+  text-align: center;
+  height: auto;
+  cursor: pointer;
+  word-wrap: break-word;
+  resize: none;
 }
 
 .input-content-with-placeholder::placeholder {
   color: black;
 }
 
-.input-title-with-placeholder::placeholder {
-  color: white;
+.input-content-with-placeholder-diary::placeholder,
+.input-title-with-placeholder-diary::placeholder {
+  color: black;
+  word-break: normal;
+}
+
+.hidden-but-occupy-space {
+  visibility: hidden;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  display: inline-block;
+}
+
+.icon::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: white;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+.like-icon-true {
+  color: red;
+  stroke: none;
+}
+
+.like-icon-false {
+  color: black;
 }

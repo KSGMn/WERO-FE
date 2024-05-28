@@ -23,7 +23,7 @@ const Login = () => {
 
   const [cookie, setCookie] = useCookies();
 
-  const { user, setUser } = useContext(AuthContext);
+  const { setLoggedIn, setToken } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -46,18 +46,18 @@ const Login = () => {
       setMessage("아이디 또는 비밀번호가 일치하지 않습니다.");
     }
     if (code === ResponseCode.DATABASE_ERROR) alert("데이터베이스 오류입니다.");
+    if (code === ResponseCode.SUSPENSION_USER) alert("이용 정지 회원입니다");
     if (code === ResponseCode.SUCCESS) {
-      const { token, expirationTime, userId } = responseBody as SignInResponseDto;
+      const { token, expirationTime } = responseBody as SignInResponseDto;
 
       const now = new Date().getTime();
       const expires = new Date(now + Number(expirationTime) * 1000);
 
-      setUser({ ...user, user_id: userId });
       localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("user_id", userId);
+      //localStorage.setItem("user_id", userId);
 
-      console.log(`유저아이디: ${userId}`);
-
+      setToken(token);
+      setLoggedIn(true);
       setError(false);
       setCookie("accessToken", token, { expires, path: "/" });
       navigate("/");
@@ -77,6 +77,7 @@ const Login = () => {
 
   const onSnsSignInButtonClickHandler = (type: "kakao" | "naver") => {
     window.location.href = SNS_SIGN_IN_URL(type);
+    localStorage.setItem("isLoggedIn", "true");
   };
 
   const handleGoogleLogin = () => {

@@ -1,4 +1,3 @@
-import React from "react";
 import Card from "../Card/Card";
 
 const Pin = (props) => {
@@ -7,11 +6,15 @@ const Pin = (props) => {
   return (
     <div className={`${pinClass} d-flex`}>
       <Card
-        diary_id={props.diary_id}
-        isBookmarked={props.isBookmarked}
+        id={props.id}
         isLiked={props.isLiked}
         content={props.content}
         trackName={props.trackName}
+        image={props.image}
+        cardClickHandler={props.cardClickHandler}
+        toggleLike={props.toggleLike}
+        isBookmarked={props.isBookmarked}
+        toggleBookmark={props.toggleBookmark}
       />
     </div>
   );

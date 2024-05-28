@@ -1,21 +1,31 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import "./MyPage.css";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
 const MyPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { user, logout } = useContext(AuthContext);
 
-  const navigate = useNavigate();
-
   const handleLogout = async () => {
+    // if (user.platform_type === "kakao") {
+    //   const result = await unlink_res();
+    //   if (result) {
+    //     navigate("/"); // 성공적으로 로그아웃 했으면 홈 페이지로 이동
+    //   } else {
+    //     alert("로그아웃에 실패하였습니다.");
+    //   }
+    //   return;
+    // }
+
     const result = await logout(); // 로그아웃 함수 호출
     if (result) {
       navigate("/"); // 성공적으로 로그아웃 했으면 홈 페이지로 이동
     } else {
-      console.error("Failed to logout"); // 로그아웃 실패 처리
+      alert("로그아웃에 실패하였습니다.");
+      return;
     }
   };
 
@@ -23,24 +33,51 @@ const MyPage = () => {
     <div className="container">
       <div className="profile d-flex flex-column align-items-center" style={{ height: "auto" }}>
         <div className="profile-image-container mb-3">
-          <img
-            src=""
-            alt=""
-            style={{
-              width: "120px",
-              height: "120px",
-              background: "black",
-              borderRadius: "50%",
-            }}
-          />
+          {user.profile_image !== "http://localhost:8080/uploads/undefined" ? (
+            <img
+              src={user.profile_image}
+              alt=""
+              style={{
+                width: "120px",
+                height: "120px",
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+              onClick={() => {
+                navigate("/mypage/prof/update");
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: "120px",
+                height: "120px",
+                background: "black",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontSize: "36px",
+                fontFamily: "Arial, sans-serif",
+                fontWeight: "bold",
+              }}
+              onClick={() => {
+                navigate("/mypage/prof/update");
+              }}
+            >
+              {user.userName}
+            </div>
+          )}
         </div>
         <div className="user-info text-center ">
-          <h4 className="text-black">{user.userName}</h4>
-          <p className="text-black m-0">{user.bio}</p>
+          {user.profile_image !== "" ? <h4 className="text-black">{user.userName}</h4> : null}
         </div>
       </div>
       <div className="d-flex flex-row justify-content-center">
-        <div className="el-btn btn">Edit</div>
+        <div className="el-btn btn" onClick={() => navigate("/mypage/edit")}>
+          Edit
+        </div>
         <div className="el-btn btn" onClick={() => handleLogout()}>
           Logout
         </div>
@@ -65,9 +102,7 @@ const MyPage = () => {
         </Link>
       </div>
       <div className="container" style={{ height: "auto" }}>
-        <div className="gallery">
-          <Outlet />
-        </div>
+        <div className="gallery"></div>
       </div>
     </div>
   );
