@@ -4,27 +4,15 @@ import naverLoginCircle from "../../assets/buttons/naver_login_circle.png";
 import googleLoginCircle from "../../assets/buttons/google_login_circle.png";
 import kakaoLoginCircle from "../../assets/buttons/kakao_login_circle.png";
 import { LoginButtonCircle } from "../LoginButton/LoginButtons";
-import { ResponseBody } from "../../types";
-import { IdCheckResponseDto, SignInResponseDto } from "../../api/response/auth";
-import { ResponseCode } from "../../types/enums";
-import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
-import { IdCheckRequestDto, SignInRequestDto } from "../../api/request/auth";
-import { SNS_SIGN_IN_URL, idCheckRequest, signInRequest, updateUserProfile } from "../../api";
+import { SNS_SIGN_IN_URL, updateUserProfile } from "../../api";
 import { AuthContext } from "../../context/AuthContext";
 import DeleteUserRequestDto from "../../api/request/user/delete-user.request.dto";
 import UpdateUserRequestDto from "../../api/request/user/update-user.request.dto";
-import { faL } from "@fortawesome/free-solid-svg-icons";
-
-interface FormMessages {
-  email?: string;
-  id?: string;
-  nickName?: string;
-  password?: string;
-}
+import Modal from "react-modal";
 
 const MyPageEdit = () => {
-  const { user, setUser, deleteUser, loading } = useContext(AuthContext);
+  const { user, deleteUser, loading } = useContext(AuthContext);
 
   const [email, setEmail] = useState(user.email);
   const [id, setId] = useState(user.user_id);
@@ -42,6 +30,7 @@ const MyPageEdit = () => {
   const [passwordMessage, setPasswordMessage] = useState<string>("");
 
   const [editClick, setEditClick] = useState<boolean>(false);
+  const [isDeleteUserConfirmModalOpen, setIsDeleteUserConfirmModalOpen] = useState(false);
 
   useEffect(() => {
     if (user.email && user.userName && user.user_id) {
@@ -77,11 +66,15 @@ const MyPageEdit = () => {
     setEditClick(true);
   };
 
+  const onDeleteUserComfirmButton = () => {
+    setIsDeleteUserConfirmModalOpen(true);
+  };
+
   const onDeleteUserButton = async () => {
     const requestBody: DeleteUserRequestDto = { userId: user.user_id };
     const result = await deleteUser(requestBody); // 로그아웃 함수 호출
     if (result) {
-      navigate("/"); // 성공적으로 회원탈퇴 했으면 홈 페이지로 이동
+      navigate("/");
     } else {
       alert("회원탈퇴에 실패하였습니다.");
     }
@@ -141,6 +134,10 @@ const MyPageEdit = () => {
         </>
       );
     }
+  };
+
+  const closeConfirmModal = () => {
+    setIsDeleteUserConfirmModalOpen(false);
   };
 
   const onSnsSignInButtonClickHandler = (type: "kakao" | "naver") => {
@@ -294,7 +291,7 @@ const MyPageEdit = () => {
               >
                 연동 해제
               </div>
-              <div className="btn btn-primary" style={{ width: "120px" }} onClick={() => onEditButton()}>
+              <div className="btn btn-primary" style={{ width: "120px" }} onClick={() => onDeleteUserComfirmButton()}>
                 회원 탈퇴
               </div>
             </div>
@@ -332,13 +329,30 @@ const MyPageEdit = () => {
 
             <div className="bottom-button-container">
               {" "}
-              <div className="btn btn-primary" style={{ width: "120px" }} onClick={() => onDeleteUserButton()}>
+              <div className="btn btn-primary" style={{ width: "120px" }} onClick={() => onDeleteUserComfirmButton()}>
                 회원 탈퇴
               </div>
             </div>
           </form>
         )}
       </div>
+      <Modal
+        isOpen={isDeleteUserConfirmModalOpen}
+        onRequestClose={closeConfirmModal}
+        contentLabel="Confirm Deletion"
+        overlayClassName="confirm-modal-overlay"
+        className="confirm-modal-content"
+      >
+        <h5>정말 탈퇴하시겠습니까?</h5>
+        <div className="confirm-modal-buttons">
+          <button className="btn cancel" onClick={() => onDeleteUserButton()}>
+            예
+          </button>
+          <button className="btn" onClick={() => setIsDeleteUserConfirmModalOpen(false)}>
+            아니오
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };

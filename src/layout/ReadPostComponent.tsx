@@ -56,6 +56,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isDiaryConfirmModalOpen, setIsDiaryConfirmModalOpen] = useState(false);
   const [isAlreadyReportConfirmModalOpen, setIsAlreadyReportConfirmModalOpen] = useState(false);
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
   const [isReportConfirmModalOpen, setIsReportConfirmModalOpen] = useState(false);
@@ -255,7 +256,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
           image: selectedBackground,
         };
         createDiary(requestBody).then(createDiaryResponse);
-        setIsConfirmModalOpen(true);
+        setIsDiaryConfirmModalOpen(true);
       }
       return;
     }
@@ -526,6 +527,20 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
             <h5>피드가 생성되었습니다.</h5>
             <div className="confirm-modal-buttons">
               <button className="btn" onClick={() => navigate("/")}>
+                확인
+              </button>
+            </div>
+          </Modal>
+          <Modal
+            isOpen={isDiaryConfirmModalOpen}
+            onRequestClose={closeConfirmModal}
+            contentLabel="Confirm Deletion"
+            overlayClassName="confirm-modal-overlay"
+            className="confirm-modal-content"
+          >
+            <h5>일기가 생성되었습니다.</h5>
+            <div className="confirm-modal-buttons">
+              <button className="btn" onClick={() => navigate("/diary")}>
                 확인
               </button>
             </div>

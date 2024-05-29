@@ -45,7 +45,7 @@ const Card = ({
     setIsRequesting(true);
     try {
       toggleBookmark(id.toString());
-      setBookmarked(isBookmarked === 1 ? 0 : 1);
+      setBookmarked(Bookmarked === 1 ? 0 : 1);
     } catch (error) {
       console.error("Error toggling bookmark", error);
     } finally {

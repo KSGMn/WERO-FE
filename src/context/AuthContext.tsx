@@ -148,7 +148,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     if (token) {
       const getUserResponse = (user: ApiUserResponse) => {
-        if (user.code === "SU") {
+        if (user) {
           setGetUser(user.data);
         }
       };
@@ -161,7 +161,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       };
       getUserImages(token).then(getUserImagesResponse);
     }
-  }, [loading]);
+  }, [token]);
 
   //getUser가 업데이트될 때 user 상태를 설정
   useEffect(() => {
@@ -181,7 +181,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       });
       setLoading(false);
     }
-  }, [getUser]);
+  }, [getUser, userImages]);
 
   // console.log(token);
   // const getKaKaoUserData = async (token: any) => {
@@ -269,11 +269,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const deleteUser = async (id: DeleteUserRequestDto): Promise<boolean> => {
     try {
       await deleteUserProfile(id);
-      localStorage.removeItem("isLoggedIn"); // 로컬 스토리지에서 인증 상태 제거
-      localStorage.removeItem("user_id"); // 로컬 스토리지에서 인증 상태 제거
-
-      // 쿠키 삭제
-      Cookies.remove("accessToken", { path: "/" }); // 액세스 토큰 삭제
+      logout();
       return true;
     } catch (error) {
       return false;
