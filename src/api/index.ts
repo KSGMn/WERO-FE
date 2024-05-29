@@ -42,7 +42,7 @@ const errorHandler = (error: any) => {
 };
 
 //const DOMAIN = "http://localhost:8080";
-const DOMAIN = "172.31.44.147:8080";
+const DOMAIN = "http://43.202.243.46:8080";
 const API_DOMAIN = `${DOMAIN}/api/v1`;
 
 //auth api
