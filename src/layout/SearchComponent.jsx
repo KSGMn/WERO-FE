@@ -6,7 +6,7 @@ import { contentSearchFeed, nonMemberContentSearchFeed } from "../api";
 import { AuthContext } from "../context/AuthContext";
 
 const SearchComponent = () => {
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
   const {
     loading,
     initialLoad,

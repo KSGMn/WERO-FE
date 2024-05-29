@@ -39,6 +39,8 @@ const ModalCard = ({
       const placeholderLength = placeholder.length;
       const widthLength = contentLength > 0 ? contentLength : placeholderLength;
       inputRef.current.style.width = `${widthLength + 5}ch`;
+      inputRef.current.style.height = "auto";
+      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
     }
   }, [content, location.pathname]);
 
@@ -97,30 +99,33 @@ const ModalCard = ({
     // };
     if (isAddMode) {
       return (
-        <input
+        <textarea
           className={isDiaryMode ? "input-title-with-placeholder-diary" : "input-content-with-placeholder"}
           type="text"
           placeholder={"제목을 입력하세요"}
           onChange={(e) => handleTrackNameChange(e.target.value)}
+          rows={1}
         />
       );
     } else if (isUpdateMode) {
       return (
-        <input
+        <textarea
           type="text"
           className={isDiaryMode ? "input-title-with-placeholder-diary" : "input-content-with-placeholder"}
           value={trackName}
           onChange={(e) => handleTrackNameChange(e.target.value)}
+          rows={1}
         />
       );
     }
     return (
       <span className="card-content" style={cardStyle}>
-        <input
+        <textarea
           className={isDiaryMode ? "input-title-with-placeholder-diary" : "input-content-with-placeholder"}
           type="text"
           value={trackName}
           readOnly
+          rows={1}
         />
       </span>
     );
@@ -133,24 +138,26 @@ const ModalCard = ({
     if (isAddMode) {
       return (
         <div className="card-content">
-          <input
+          <textarea
             ref={inputRef}
             className={isDiaryMode ? "input-content-with-placeholder-diary" : "input-content-with-placeholder"}
             type="text"
             placeholder="내용을 입력하세요"
             onChange={(e) => handleContentChange(e.target.value)}
+            rows={1}
           />
         </div>
       );
     } else if (isUpdateMode) {
       return (
         <div className="card-content">
-          <input
+          <textarea
             ref={inputRef}
             className={isDiaryMode ? "input-content-with-placeholder-diary" : "input-content-with-placeholder"}
             type="text"
             value={content}
             onChange={(e) => handleContentChange(e.target.value)}
+            rows={1}
           />
         </div>
       );

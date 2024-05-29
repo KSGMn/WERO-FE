@@ -9,6 +9,7 @@ import {
   faHeart,
   faLayerGroup,
   faList,
+  faUserTie,
 } from "@fortawesome/free-solid-svg-icons";
 
 export const SideBarIcon = (toggleSidebar) => [
@@ -17,7 +18,7 @@ export const SideBarIcon = (toggleSidebar) => [
     icon: <FontAwesomeIcon className="close-btn-icon fs-3" icon={faXmark} onClick={toggleSidebar} />,
   }, //1
   { icon: <FontAwesomeIcon icon={faHeadset} /> }, //2
-  { icon: <FontAwesomeIcon icon={faStar} /> }, //3
+  { icon: <FontAwesomeIcon icon={faUserTie} /> }, //3
 ];
 
 export const SideBarData = [

@@ -152,13 +152,14 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
   const [isFetching, setIsFetching] = useState(false);
   const [initialLoad, setInitialLoad] = useState(false);
   const [historyInitialLoad, setHistoryInitialLoad] = useState(false);
+  const [likeInitialLoad, setlikeInitialLoad] = useState(false);
 
   const { user, token, loading, setLoading } = useContext(AuthContext);
 
   const location = useLocation();
 
   useEffect(() => {
-    if (token && user) return;
+    if (token) return;
     if (location.pathname === "/" && !initialLoad) {
       const nonMemberFindAllFeedResponse = (newFeeds: ApiResponse) => {
         if (Array.isArray(newFeeds.data)) {
@@ -173,7 +174,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
       nonMemberFindAllFeed(page).then(nonMemberFindAllFeedResponse);
       setLoading(false);
     }
-  }, []);
+  }, [location]);
 
   useEffect(() => {
     if (!token) {
@@ -227,7 +228,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
     }
     if (token && user.user_id) {
       if (
-        (location.pathname === "/mypage" && !historyInitialLoad) ||
+        (location.pathname.includes("mypage") && !historyInitialLoad) ||
         (location.pathname === "/history" && !historyInitialLoad)
       ) {
         const findMyFeedResponse = (newMyFeeds: ApiResponse) => {
@@ -243,12 +244,16 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
         findMyFeed(page).then(findMyFeedResponse);
         setLoading(false);
       }
-      if (location.pathname === "/mypage" || location.pathname === "/likes") {
+      if (
+        (location.pathname.includes("mypage") && !likeInitialLoad) ||
+        (location.pathname === "/likes" && !likeInitialLoad)
+      ) {
         const findLikeFeedResponse = (newLikeFeeds: ApiResponse) => {
           if (newLikeFeeds) {
             setLikeFeeds(newLikeFeeds.data);
             setIsFetching(false);
             setLoading(false);
+            setlikeInitialLoad(true);
           }
         };
         findLikeFeed().then(findLikeFeedResponse);

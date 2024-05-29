@@ -78,7 +78,14 @@ const WeRo = () => {
           <Routes>
             <Route path="/" element={<HomeComponent />}>
               <Route path="/read/:id" element={<ReadPostComponent />} />
-              <Route path="/edit/:id" element={<ReadPostComponent />} />
+              <Route
+                path="/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <ReadPostComponent />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
             <Route path="/search/:query" element={<SearchComponent />}>
               <Route path="read/:id" element={<ReadPostComponent />} />
