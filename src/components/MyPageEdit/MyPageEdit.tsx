@@ -31,7 +31,7 @@ const MyPageEdit = () => {
 
   const [editClick, setEditClick] = useState<boolean>(false);
   const [isDeleteUserConfirmModalOpen, setIsDeleteUserConfirmModalOpen] = useState(false);
-
+  const { authNavigate } = useContext(AuthContext);
   useEffect(() => {
     if (user.email && user.userName && user.user_id) {
       setEmail(user.email);
@@ -40,8 +40,6 @@ const MyPageEdit = () => {
       setGender(user.gender);
     }
   }, [user]);
-
-  const navigate = useNavigate();
 
   if (loading) {
     return <div className="center-message"></div>;
@@ -74,7 +72,7 @@ const MyPageEdit = () => {
     const requestBody: DeleteUserRequestDto = { userId: user.user_id };
     const result = await deleteUser(requestBody); // 로그아웃 함수 호출
     if (result) {
-      navigate("/");
+      authNavigate("/");
     } else {
       alert("회원탈퇴에 실패하였습니다.");
     }
@@ -298,12 +296,12 @@ const MyPageEdit = () => {
           </form>
         ) : (
           <form className="mypage-edit-form d-flex flex-column align-items-center " style={{ position: "relative" }}>
-            <div className="mypage-edit-inputbox d-flex flex-row">
+            {/* <div className="mypage-edit-inputbox d-flex flex-row">
               <label className="mypage-edit-input-label-sns">
                 <LoginButtonCircle serviceName="Google" logo={googleLoginCircle} onClick={handleGoogleLogin} />
               </label>
               <div className="d-flex align-items-center">구글 로그인 연동</div>
-            </div>
+            </div> */}
 
             <div className="mypage-edit-inputbox d-flex flex-row">
               <label className="mypage-edit-input-label-sns">

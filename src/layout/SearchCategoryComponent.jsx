@@ -4,15 +4,16 @@ import DesignGrid from "../components/DesignGrid/DesignGrid";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import { categorySearchFeed, nonMemberCategorySearchFeed } from "../api";
 import { AuthContext } from "../context/AuthContext";
+import Cookies from "js-cookie";
 
 const SearchComponent = () => {
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
   const {
     loading,
     initialLoad,
     setHasMore,
     setIsFetching,
-    setInitialLoad,
+    setSearchCategoryInitialLoad,
     toggleLike,
     loadMoreFeeds,
     page,
@@ -32,7 +33,7 @@ const SearchComponent = () => {
           setSearchFeeds((prevFeeds) => [...prevFeeds, ...newFeeds.data]);
           setHasMore(newFeeds.data.length > 0);
           setIsFetching(false);
-          setInitialLoad(true);
+          setSearchCategoryInitialLoad(true);
         } else {
           setHasMore(false);
         }
@@ -40,7 +41,7 @@ const SearchComponent = () => {
       nonMemberCategorySearchFeed(query, page).then(nonMemberCategorySearchFeedResponse);
       setLoading(false);
     }
-
+    if (token !== Cookies.get("accessToken") || Cookies.get("accessToken") === undefined) return;
     if (location.pathname.includes("/category/search") && !initialLoad && user.user_id !== "") {
       const categorySearchFeedResponse = (newFeeds) => {
         if (Array.isArray(newFeeds.data) && query) {
@@ -48,15 +49,15 @@ const SearchComponent = () => {
           setSearchFeeds((prevFeeds) => [...prevFeeds, ...newFeeds.data]);
           setHasMore(newFeeds.data.length > 0);
           setIsFetching(false);
-          setInitialLoad(true);
+          setSearchCategoryInitialLoad(true);
         } else {
           setHasMore(false);
         }
       };
-      categorySearchFeed(query, page).then(categorySearchFeedResponse);
+      categorySearchFeed(query, page, token).then(categorySearchFeedResponse);
       setLoading(false);
     }
-  }, [query]);
+  }, [query, token]);
 
   if (loading) {
     return <div className="center-message">로딩 중...</div>;

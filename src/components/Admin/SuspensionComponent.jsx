@@ -6,7 +6,8 @@ import Modal from "react-modal";
 import { useFeeds } from "../../context/FeedContext";
 
 const SuspentionComponent = () => {
-  const { suspensionUsers, setSuspensionUsers, page, setPage, setIsFetching, setInitialLoad, loading } = useFeeds();
+  const { suspensionUsers, setSuspensionUsers, page, setPage, setIsFetching, setSuspensionInitialLoad, loading } =
+    useFeeds();
   const [isSuspensionConfirmModalOpen, setIsSuspensionConfirmModalOpen] = useState(false);
   const [selectedMainfeedUserId, setSelectedMainfeedUserId] = useState(null);
   const [itemsPerPage] = useState(10); // 페이지당 표시할 항목 수는 고정
@@ -42,7 +43,7 @@ const SuspentionComponent = () => {
   const handleClick = (pageNumber) => {
     setSuspensionUsers(suspensionUsers);
     setIsFetching(true);
-    setInitialLoad(false);
+    setSuspensionInitialLoad(false);
     setPage(pageNumber - 1);
   };
 

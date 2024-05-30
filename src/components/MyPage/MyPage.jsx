@@ -7,19 +7,9 @@ const MyPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, authNavigate } = useContext(AuthContext);
 
   const handleLogout = async () => {
-    // if (user.platform_type === "kakao") {
-    //   const result = await unlink_res();
-    //   if (result) {
-    //     navigate("/"); // 성공적으로 로그아웃 했으면 홈 페이지로 이동
-    //   } else {
-    //     alert("로그아웃에 실패하였습니다.");
-    //   }
-    //   return;
-    // }
-
     const result = await logout(); // 로그아웃 함수 호출
     if (result) {
       navigate("/"); // 성공적으로 로그아웃 했으면 홈 페이지로 이동
@@ -44,7 +34,7 @@ const MyPage = () => {
                 objectFit: "cover",
               }}
               onClick={() => {
-                navigate("/mypage/prof/update");
+                authNavigate("/mypage/prof/update");
               }}
             />
           ) : (
@@ -63,7 +53,7 @@ const MyPage = () => {
                 fontWeight: "bold",
               }}
               onClick={() => {
-                navigate("/mypage/prof/update");
+                authNavigate("/mypage/prof/update");
               }}
             >
               {user.userName}
@@ -75,7 +65,7 @@ const MyPage = () => {
         </div>
       </div>
       <div className="d-flex flex-row justify-content-center">
-        <div className="el-btn btn" onClick={() => navigate("/mypage/edit")}>
+        <div className="el-btn btn" onClick={() => authNavigate("/mypage/edit")}>
           Edit
         </div>
         <div className="el-btn btn" onClick={() => handleLogout()}>

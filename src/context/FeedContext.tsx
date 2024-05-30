@@ -14,6 +14,7 @@ import {
 } from "../api";
 import { AuthContext } from "./AuthContext";
 import { useLocation } from "react-router-dom";
+import Cookies from "js-cookie";
 
 interface Feed {
   mainfeed_id: number;
@@ -78,6 +79,10 @@ type FeedContextType = {
   setIsFetching: React.Dispatch<React.SetStateAction<boolean>>;
   setInitialLoad: React.Dispatch<React.SetStateAction<boolean>>;
   setHasMore: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearchContentInitialLoad: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearchCategoryInitialLoad: React.Dispatch<React.SetStateAction<boolean>>;
+  setReportsInitialLoad: React.Dispatch<React.SetStateAction<boolean>>;
+  setSuspensionInitialLoad: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 interface FeedProviderProps {
@@ -153,6 +158,10 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
   const [initialLoad, setInitialLoad] = useState(false);
   const [historyInitialLoad, setHistoryInitialLoad] = useState(false);
   const [likeInitialLoad, setlikeInitialLoad] = useState(false);
+  const [searchContentInitialLoad, setSearchContentInitialLoad] = useState(false);
+  const [searchCategoryInitialLoad, setSearchCategoryInitialLoad] = useState(false);
+  const [reportsInitialLoad, setReportsInitialLoad] = useState(false);
+  const [suspensionInitialLoad, setSuspensionInitialLoad] = useState(false);
 
   const { user, token, loading, setLoading } = useContext(AuthContext);
 
@@ -177,10 +186,11 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
   }, [location]);
 
   useEffect(() => {
-    if (!token) {
+    if (!token || Cookies.get("accessToken") === undefined) {
       return;
     }
-    if (location.pathname.includes("suspension") && !initialLoad) {
+
+    if (location.pathname.includes("suspension") && !suspensionInitialLoad) {
       const findSuspensionResponse = (newSuspesion: ApiSuspensionResponse) => {
         if (suspensionUsers.length !== 0) {
           setSuspensionUsers([]);
@@ -189,7 +199,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
           setSuspensionUsers((prevSuspension) => [...prevSuspension, ...newSuspesion.data]);
           setHasMore(newSuspesion.data.length > 0);
           setIsFetching(false);
-          setInitialLoad(true);
+          setSuspensionInitialLoad(true);
         } else {
           setHasMore(false);
         }
@@ -197,14 +207,17 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
       findSuspensionUsers(page).then(findSuspensionResponse);
       setLoading(false);
     }
-    if ((location.pathname.includes("reports") && !initialLoad) || (location.pathname === "/admin" && !initialLoad)) {
+    if (
+      (location.pathname.includes("reports") && !reportsInitialLoad) ||
+      (location.pathname === "/admin" && !reportsInitialLoad)
+    ) {
       const findAllReportResponse = (newReports: ApiReportResponse) => {
         if (Array.isArray(newReports.data)) {
           setReports([]);
           setReports((prevReports) => [...prevReports, ...newReports.data]);
           setHasMore(newReports.data.length > 0);
           setIsFetching(false);
-          setInitialLoad(true);
+          setReportsInitialLoad(true);
         } else {
           setHasMore(false);
         }
@@ -223,8 +236,10 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
           setHasMore(false);
         }
       };
-      findAllFeed(page, token).then(findAllFeedResponse);
-      setLoading(false);
+      if (token) {
+        findAllFeed(page, token).then(findAllFeedResponse);
+        setLoading(false);
+      }
     }
     if (token && user.user_id) {
       if (
@@ -241,7 +256,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
             setHasMore(false);
           }
         };
-        findMyFeed(page).then(findMyFeedResponse);
+        findMyFeed(page, token).then(findMyFeedResponse);
         setLoading(false);
       }
       if (
@@ -256,7 +271,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
             setlikeInitialLoad(true);
           }
         };
-        findLikeFeed().then(findLikeFeedResponse);
+        findLikeFeed(token).then(findLikeFeedResponse);
       }
       if (location.pathname === "/moody-match") {
         const moodyMatchFeedResponse = (newMoodyMatchFeeds: ApiResponse) => {
@@ -265,7 +280,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
             setIsFetching(false);
           }
         };
-        moodyMatchFeed(user.user_id).then(moodyMatchFeedResponse);
+        moodyMatchFeed(user.user_id, token).then(moodyMatchFeedResponse);
         setLoading(false);
       }
       if (location.pathname === "/diary") {
@@ -275,13 +290,13 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
             setIsFetching(false);
           }
         };
-        findAllDiary().then(findAllDiaryResponse);
+        findAllDiary(token).then(findAllDiaryResponse);
         setLoading(false);
       }
     } else {
-      location.pathname !== "/login" ? setLoading(true) : setLoading(false);
+      if (location.pathname !== "/login") setLoading(true);
     }
-  }, [location, page]);
+  }, [location, page, token]);
 
   const toggleLike = async (mainfeed_id: number, isLiked: boolean) => {
     if (!feeds || !MyFeeds || !LikeFeeds) return;
@@ -352,6 +367,10 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
         searchContentFeeds,
         setSearchContentFeeds,
         setHasMore,
+        setSearchContentInitialLoad,
+        setSearchCategoryInitialLoad,
+        setReportsInitialLoad,
+        setSuspensionInitialLoad,
       }}
     >
       {children}

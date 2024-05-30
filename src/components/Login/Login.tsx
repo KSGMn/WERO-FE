@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { SignInRequestDto } from "../../api/request/auth";
 import { SNS_SIGN_IN_URL, signInRequest } from "../../api";
 import { AuthContext } from "../../context/AuthContext";
+import Cookies from "js-cookie";
 
 const Login = () => {
   const [id, setId] = useState("");
@@ -21,9 +22,7 @@ const Login = () => {
 
   const [message, setMessage] = useState<string>("");
 
-  const [cookie, setCookie] = useCookies();
-
-  const { setLoggedIn, setToken } = useContext(AuthContext);
+  const { setLoggedIn, setToken, setRefreshToken } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -48,18 +47,21 @@ const Login = () => {
     if (code === ResponseCode.DATABASE_ERROR) alert("데이터베이스 오류입니다.");
     if (code === ResponseCode.SUSPENSION_USER) alert("이용 정지 회원입니다");
     if (code === ResponseCode.SUCCESS) {
-      const { token, expirationTime } = responseBody as SignInResponseDto;
+      const { token, expirationTime, refreshToken } = responseBody as SignInResponseDto;
 
       const now = new Date().getTime();
-      const expires = new Date(now + Number(expirationTime) * 1000);
+      const expires = new Date(now + 3600 * 1000);
+      const refreshExpires = new Date(now + 3600 * 1000 * 24 * 7);
 
       localStorage.setItem("isLoggedIn", "true");
       //localStorage.setItem("user_id", userId);
 
       setToken(token);
+      setRefreshToken(refreshToken);
       setLoggedIn(true);
       setError(false);
-      setCookie("accessToken", token, { expires, path: "/" });
+      Cookies.set("accessToken", token, { expires, path: "/" });
+      Cookies.set("refreshToken", refreshToken, { expires: refreshExpires, path: "/" });
       navigate("/");
     }
   };
@@ -138,7 +140,7 @@ const Login = () => {
       </form>
       <label style={{ marginBottom: "20px", marginTop: "20px" }}>SNS 로그인</label>
       <div className="social-login-btn d-flex flex-row justify-content-around w-50">
-        <LoginButtonCircle serviceName="Google" logo={googleLoginCircle} onClick={handleGoogleLogin} />
+        {/* <LoginButtonCircle serviceName="Google" logo={googleLoginCircle} onClick={handleGoogleLogin} /> */}
         <LoginButtonCircle
           serviceName="Kakao"
           logo={kakaoLoginCircle}

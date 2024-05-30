@@ -1,12 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import "./DesignGrid.css";
 import Pin from "./Pin.js";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 const DesignGrid = ({ feeds, toggleLike, toggleBookmark, loadMoreFeeds, hasMore }) => {
+  const { authNavigate, user } = useContext(AuthContext);
   const { query } = useParams();
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const location = useLocation();
 
   const sizes = ["small", "medium", "large"];
@@ -74,9 +76,10 @@ const DesignGrid = ({ feeds, toggleLike, toggleBookmark, loadMoreFeeds, hasMore 
 
   const cardClickHandler = (feedId, content, trackName, image, category, createDate, isLiked, userId, isBookmarked) => {
     if (location.pathname === "/category") {
-      navigate(`/category/search/${content}`);
+      authNavigate(`/category/search/${content}`);
       return;
     }
+
     navigate(`${path}/read/${feedId}`, {
       state: {
         content,

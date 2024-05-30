@@ -4,4 +4,5 @@ export default interface SignInResponseDto extends ResponseDto {
   userId: string;
   token: string;
   expirationTime: number;
+  refreshToken: string;
 }

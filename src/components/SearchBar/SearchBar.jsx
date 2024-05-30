@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "./SearchBar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { useFeeds } from "../../context/FeedContext";
+import { AuthContext } from "../../context/AuthContext";
 
 const SearchBar = () => {
   const { setInitialLoad, setIsFetching } = useFeeds();
+  const { authNavigate } = useContext(AuthContext);
   const [query, setQuery] = useState("");
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -18,7 +19,7 @@ const SearchBar = () => {
     setIsFetching(true);
     setInitialLoad(false);
     e.preventDefault();
-    navigate(`/search/${query}`);
+    authNavigate(`/search/${query}`);
   };
 
   return (

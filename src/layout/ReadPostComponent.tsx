@@ -38,7 +38,7 @@ interface ModalProps {
 }
 
 const ReadPostComponent: React.FC<ModalProps> = () => {
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
   const { id, query } = useParams();
   const { state } = useLocation();
   const { content, trackName, userId, image, isLiked, category, isBookmarked } = state || {};
@@ -67,6 +67,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const { authNavigate } = useContext(AuthContext);
   const { toggleLike } = useFeeds();
 
   if (id === undefined) {
@@ -89,7 +90,9 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
           setLiked(getFeed.data.liked);
         }
       };
-      findOneFeed(parseInt(id)).then(findOneFeedResponse);
+      if (token) {
+        findOneFeed(parseInt(id), token).then(findOneFeedResponse);
+      }
     }
     if (location.pathname.includes("/diary/read")) {
       const findOneDiaryResponse = (getDiary: ApiOneDiaryResponse) => {
@@ -114,42 +117,42 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
 
   const startsWithsMypage = () => {
     if (location.pathname.startsWith("/mypage")) {
-      navigate("/mypage");
+      authNavigate("/mypage");
       return true;
     }
     return false;
   };
   const startsWithsMypageHistory = () => {
     if (location.pathname.startsWith("/mypage/history")) {
-      navigate("/mypage/history");
+      authNavigate("/mypage/history");
       return true;
     }
     return false;
   };
   const startsWithsMypageLikes = () => {
     if (location.pathname.startsWith("/mypage/likes")) {
-      navigate("/mypage/likes");
+      authNavigate("/mypage/likes");
       return true;
     }
     return false;
   };
   const startsWithsDiary = () => {
     if (location.pathname.startsWith("/diary")) {
-      navigate("/diary");
+      authNavigate("/diary");
       return true;
     }
     return false;
   };
   const startsWithsHistory = () => {
     if (location.pathname.startsWith("/history")) {
-      navigate("/history");
+      authNavigate("/history");
       return true;
     }
     return false;
   };
   const startsWithsLikes = () => {
     if (location.pathname.startsWith("/likes")) {
-      navigate("/likes");
+      authNavigate("/likes");
       return true;
     }
     return false;
@@ -157,7 +160,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
 
   const startsWithsSearchs = () => {
     if (location.pathname.startsWith("/search")) {
-      navigate(`/search/${query}`);
+      authNavigate(`/search/${query}`);
       return true;
     }
     return false;
@@ -165,7 +168,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
 
   const startsWithsCategorySearchs = () => {
     if (location.pathname.startsWith("/category/search")) {
-      navigate(`/category/search/${query}`);
+      authNavigate(`/category/search/${query}`);
       return true;
     }
     return false;
@@ -181,7 +184,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     if (startsWithsLikes()) return;
     if (startsWithsSearchs()) return;
     if (startsWithsCategorySearchs()) return;
-    navigate("/");
+    authNavigate("/");
   };
 
   if (id === undefined) {
@@ -189,13 +192,13 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
   }
 
   const onUpdatePage = () => {
-    if (location.pathname.startsWith("/mypage/")) return navigate(`/mypage/edit/${id}`);
-    if (location.pathname.startsWith("/diary/")) return navigate(`/diary/edit/${id}`);
-    if (location.pathname.startsWith("/likes/")) return navigate(`/likes/edit/${id}`);
-    if (location.pathname.startsWith("/history/")) return navigate(`/history/edit/${id}`);
-    if (location.pathname.startsWith("/search/")) return navigate(`/search/edit/${id}`);
-    if (location.pathname.startsWith("/category/search/")) return navigate(`/category/search/edit/${id}`);
-    return navigate(`/edit/${id}`);
+    if (location.pathname.startsWith("/mypage/")) return authNavigate(`/mypage/edit/${id}`);
+    if (location.pathname.startsWith("/diary/")) return authNavigate(`/diary/edit/${id}`);
+    if (location.pathname.startsWith("/likes/")) return authNavigate(`/likes/edit/${id}`);
+    if (location.pathname.startsWith("/history/")) return authNavigate(`/history/edit/${id}`);
+    if (location.pathname.startsWith("/search/")) return authNavigate(`/search/edit/${id}`);
+    if (location.pathname.startsWith("/category/search/")) return authNavigate(`/category/search/edit/${id}`);
+    return authNavigate(`/edit/${id}`);
   };
 
   const renderModalTitle = () => {
@@ -355,7 +358,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     if (startsWithsDiary()) return;
     if (startsWithsLikes()) return;
 
-    navigate("/");
+    authNavigate("/");
   };
 
   const handleContentChange = (newContent: string) => {
@@ -526,7 +529,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
           >
             <h5>피드가 생성되었습니다.</h5>
             <div className="confirm-modal-buttons">
-              <button className="btn" onClick={() => navigate("/")}>
+              <button className="btn" onClick={() => authNavigate("/")}>
                 확인
               </button>
             </div>
@@ -540,7 +543,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
           >
             <h5>일기가 생성되었습니다.</h5>
             <div className="confirm-modal-buttons">
-              <button className="btn" onClick={() => navigate("/diary")}>
+              <button className="btn" onClick={() => authNavigate("/diary")}>
                 확인
               </button>
             </div>

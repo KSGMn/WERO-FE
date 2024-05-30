@@ -12,16 +12,16 @@ const MoodyMatchComponent = () => {
   const [likedStates, setLikedStates] = useState(Array(MoodyMatchFeeds.length).fill(false));
   const [moodyIndex, setMoodyIndex] = useState(0);
 
-  if (MoodyMatchFeeds === undefined) {
-    return <div className="center-message">피드를 불러오지 못했습니다.</div>;
-  }
-
   if (loading) {
-    return <div className="center-message"></div>;
+    return <div className="center-message">로딩 중...</div>;
   }
 
-  if (MoodyMatchFeeds.length === 0 && loading === false) {
-    return <div className="center-message">생성된 피드가 없습니다.</div>;
+  let message = null;
+
+  if (MoodyMatchFeeds === undefined) {
+    message = <div className="center-message">피드를 불러오지 못했습니다.</div>;
+  } else if (MoodyMatchFeeds && MoodyMatchFeeds.length === 0) {
+    message = <div className="center-message">작성된 피드가 없습니다.</div>;
   }
 
   if (moodyIndex === MoodyMatchFeeds.length) {
@@ -67,17 +67,20 @@ const MoodyMatchComponent = () => {
         alignItems: "center",
       }}
     >
+      {message}
       <div style={{ height: "80%", width: "500px", overflow: "hidden", position: "relative" }}>
-        <Card
-          key={moodyIndex}
-          mainfeed_id={MoodyMatchFeeds[moodyIndex].mainfeed_id}
-          isLiked={MoodyMatchFeeds[moodyIndex].liked}
-          content={MoodyMatchFeeds[moodyIndex].content}
-          image={MoodyMatchFeeds[moodyIndex].image}
-          user_id={user.user_id}
-          cardClickHandler={null}
-          toggleLike={null}
-        />
+        {MoodyMatchFeeds && MoodyMatchFeeds.length > 0 && (
+          <Card
+            key={moodyIndex}
+            mainfeed_id={MoodyMatchFeeds[moodyIndex].mainfeed_id}
+            isLiked={MoodyMatchFeeds[moodyIndex].liked}
+            content={MoodyMatchFeeds[moodyIndex].content}
+            image={MoodyMatchFeeds[moodyIndex].image}
+            user_id={user.user_id}
+            cardClickHandler={null}
+            toggleLike={null}
+          />
+        )}
       </div>
       <div
         style={{

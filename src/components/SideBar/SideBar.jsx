@@ -5,17 +5,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
 const SideBar = () => {
+  const { authNavigate } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const location = useLocation();
-  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
-  };
-
-  const adminBtn = () => {
-    navigate("/");
   };
 
   const { user } = useContext(AuthContext);
@@ -63,7 +60,7 @@ const SideBar = () => {
                     marginLeft: "8px",
                     cursor: "pointer",
                   }}
-                  onClick={() => (window.location.pathname = "/mypage")}
+                  onClick={() => authNavigate("/mypage")}
                 />
               ) : (
                 <div
@@ -115,7 +112,7 @@ const SideBar = () => {
               key={key}
               className="SidebarItem"
               style={{ backgroundColor: location.pathname.includes(val.link) ? "#3f5060" : null }}
-              onClick={() => navigate(val.link)}
+              onClick={() => authNavigate(val.link)}
             >
               <div className="SidebarIcon">{val.icon}</div>
               <div className="SidebarTitle">{val.title}</div>
@@ -123,12 +120,7 @@ const SideBar = () => {
           ))}
         </ul>
         {user.user_id === "admin" && (
-          <div
-            className="SidebarItem"
-            onClick={() => {
-              window.location.pathname("/admin");
-            }}
-          >
+          <div className="SidebarItem" onClick={() => authNavigate("/admin")}>
             <div className="SidebarIcon">{SideBarIcon()[3].icon}</div>
             <div className="SidebarTitle">Admin</div>
           </div>
