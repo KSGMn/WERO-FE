@@ -17,12 +17,12 @@
   border: none;
   outline: none;
   font-size: 14px;
+  background-color: transparent;
 }
 
 .search-button {
   display: flex;
   align-items: center;
-  background-color: white;
   cursor: pointer;
   color: black;
   border: none;

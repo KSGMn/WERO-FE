@@ -43,9 +43,9 @@ const errorHandler = (error: any) => {
   return responseBody;
 };
 
-
 //const DOMAIN = "http://localhost:8080";
-const DOMAIN = process.env.REACT_APP_API_DOMAIN;
+const DOMAIN = "https://werosns.shop";
+//const DOMAIN = process.env.REACT_APP_API_DOMAIN;
 const API_DOMAIN = `${DOMAIN}/api/v1`;
 
 //auth api

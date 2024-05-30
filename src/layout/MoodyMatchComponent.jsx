@@ -5,12 +5,17 @@ import { AuthContext } from "../context/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as fasHeart, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as farHeart } from "@fortawesome/free-regular-svg-icons";
+import { transform } from "typescript";
+import "../components/MoodyMatch/MoodyMatch.css";
 
 const MoodyMatchComponent = () => {
   const { MoodyMatchFeeds, toggleLike, loading } = useFeeds();
   const { user } = useContext(AuthContext);
   const [likedStates, setLikedStates] = useState(Array(MoodyMatchFeeds.length).fill(false));
   const [moodyIndex, setMoodyIndex] = useState(0);
+  const [swipeDirection, setSwipeDirection] = useState("");
+  const [showNextCard, setShowNextCard] = useState(false);
+  const [cardCount, setCardCount] = useState(0);
 
   if (loading) {
     return <div className="center-message">로딩 중...</div>;
@@ -25,17 +30,36 @@ const MoodyMatchComponent = () => {
   }
 
   if (moodyIndex === MoodyMatchFeeds.length) {
-    return <div className="center-message">모든 피드를 좋아요 하셨습니다.</div>;
+    return <div className="center-message">모든 피드를 보셨습니다.</div>;
   }
 
-  const isLikeClickBtn = () => {
-    toggleLike(MoodyMatchFeeds[moodyIndex].mainfeed_id, MoodyMatchFeeds[moodyIndex].liked);
-    setMoodyIndex(moodyIndex + 1);
-    setLikedStates((prevStates) => {
-      const newStates = [...prevStates];
-      newStates[moodyIndex] = !newStates[moodyIndex];
-      return newStates;
-    });
+  const handleSwipe = (direction) => {
+    if (MoodyMatchFeeds && MoodyMatchFeeds.length > 0) {
+      cardCount === 0 ? setCardCount(1) : setCardCount(0);
+      setSwipeDirection(direction);
+      setTimeout(() => {
+        setSwipeDirection("");
+        setShowNextCard(true);
+        setMoodyIndex(moodyIndex + 1);
+      }, 500);
+    }
+  };
+
+  const isLikeClickBtn = (direction) => {
+    handleSwipe(direction);
+    if (showNextCard === true) setShowNextCard(false);
+    if (direction === "like") {
+      toggleLike(MoodyMatchFeeds[moodyIndex].mainfeed_id, MoodyMatchFeeds[moodyIndex].liked);
+
+      setLikedStates((prevStates) => {
+        const newStates = [...prevStates];
+        newStates[moodyIndex] = !newStates[moodyIndex];
+        return newStates;
+      });
+      return;
+    } else if (direction === "hate") {
+      setMoodyIndex(moodyIndex + 1);
+    }
   };
 
   const btnStyle = {
@@ -68,18 +92,34 @@ const MoodyMatchComponent = () => {
       }}
     >
       {message}
-      <div style={{ height: "80%", width: "500px", overflow: "hidden", position: "relative" }}>
-        {MoodyMatchFeeds && MoodyMatchFeeds.length > 0 && (
-          <Card
-            key={moodyIndex}
-            mainfeed_id={MoodyMatchFeeds[moodyIndex].mainfeed_id}
-            isLiked={MoodyMatchFeeds[moodyIndex].liked}
-            content={MoodyMatchFeeds[moodyIndex].content}
-            image={MoodyMatchFeeds[moodyIndex].image}
-            user_id={user.user_id}
-            cardClickHandler={null}
-            toggleLike={null}
-          />
+      <div className="card-stack">
+        {MoodyMatchFeeds && MoodyMatchFeeds.length > 0 && cardCount === 0 && (
+          <div className={`moody-card ${swipeDirection}`}>
+            <Card
+              key={moodyIndex}
+              mainfeed_id={MoodyMatchFeeds[moodyIndex].mainfeed_id}
+              isLiked={MoodyMatchFeeds[moodyIndex].liked}
+              content={MoodyMatchFeeds[moodyIndex].content}
+              image={MoodyMatchFeeds[moodyIndex].image}
+              user_id={user.user_id}
+              cardClickHandler={null}
+              toggleLike={null}
+            />
+          </div>
+        )}
+        {MoodyMatchFeeds && MoodyMatchFeeds.length > 1 && cardCount === 1 && (
+          <div className={`moody-card next ${swipeDirection}`}>
+            <Card
+              key={moodyIndex}
+              mainfeed_id={MoodyMatchFeeds[moodyIndex].mainfeed_id}
+              isLiked={MoodyMatchFeeds[moodyIndex].liked}
+              content={MoodyMatchFeeds[moodyIndex].content}
+              image={MoodyMatchFeeds[moodyIndex].image}
+              user_id={user.user_id}
+              cardClickHandler={null}
+              toggleLike={null}
+            />
+          </div>
         )}
       </div>
       <div
@@ -93,13 +133,15 @@ const MoodyMatchComponent = () => {
           padding: "16px 0px",
         }}
       >
-        <button type="button" style={btnStyle}>
-          <FontAwesomeIcon className="fs-3" icon={faXmark} />
+        <button className="hate-and-like-btn" type="button" style={btnStyle}>
+          <FontAwesomeIcon className="fs-3" icon={faXmark} onClick={() => isLikeClickBtn("hate")} />
         </button>
-        {/* <button type="button" style={btnStyle}>
-          <FontAwesomeIcon className="fs-3" icon={faRotateLeft} onClick={() => popBtn()} />
-        </button> */}
-        <button type="button" className="fs-3" style={btnStyle} onClick={() => isLikeClickBtn()}>
+        <button
+          type="button"
+          className="hate-and-like-btn fs-3"
+          style={btnStyle}
+          onClick={() => isLikeClickBtn("like")}
+        >
           {renderInteractiveArea()}
         </button>
       </div>

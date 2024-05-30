@@ -41,7 +41,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
   const { user, token } = useContext(AuthContext);
   const { id, query } = useParams();
   const { state } = useLocation();
-  const { content, trackName, userId, image, isLiked, category, isBookmarked } = state || {};
+  const { content, userId, trackName, image, isLiked, category, isBookmarked } = state || {};
 
   const [originalContent] = useState(content);
   const [originalTrackName] = useState(trackName);
@@ -77,7 +77,6 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
   useEffect(() => {
     if (location.pathname.includes("read") || location.pathname.includes("edit")) {
       setIsOpen(true);
-      setIsLoading(false);
     }
     if (user.user_id === "") return;
 
@@ -107,7 +106,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
       findOneDiary(parseInt(id)).then(findOneDiaryResponse);
     }
     setIsLoading(false);
-  }, [location.pathname, Liked]);
+  }, [location.pathname, Liked, userId]);
 
   const loadingDiv = () => {
     if (isLoading) {
@@ -184,7 +183,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     if (startsWithsLikes()) return;
     if (startsWithsSearchs()) return;
     if (startsWithsCategorySearchs()) return;
-    authNavigate("/");
+    navigate("/");
   };
 
   if (id === undefined) {
@@ -198,7 +197,7 @@ const ReadPostComponent: React.FC<ModalProps> = () => {
     if (location.pathname.startsWith("/history/")) return authNavigate(`/history/edit/${id}`);
     if (location.pathname.startsWith("/search/")) return authNavigate(`/search/edit/${id}`);
     if (location.pathname.startsWith("/category/search/")) return authNavigate(`/category/search/edit/${id}`);
-    return authNavigate(`/edit/${id}`);
+    return authNavigate(`edit/${id}`);
   };
 
   const renderModalTitle = () => {

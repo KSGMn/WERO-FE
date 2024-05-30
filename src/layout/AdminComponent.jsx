@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 const AdminComponent = () => {
-  const { setIsFetching, setInitialLoad, setPage } = useFeeds();
+  const { setIsFetching, setPage } = useFeeds();
   const { authNavigate } = useContext(AuthContext);
 
   const handlePage = (e) => {
@@ -14,7 +14,6 @@ const AdminComponent = () => {
       path = "/admin/user/suspension";
     }
     setPage(0);
-    setInitialLoad(false);
     setIsFetching(true);
     authNavigate(path);
   };
