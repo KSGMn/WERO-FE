@@ -25,6 +25,7 @@ interface Feed {
   modificate_date: string | null;
   category: string;
   liked: boolean;
+  userId: string;
 }
 
 interface Diary {
@@ -236,10 +237,8 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
           setHasMore(false);
         }
       };
-      if (token) {
-        findAllFeed(page, token).then(findAllFeedResponse);
-        setLoading(false);
-      }
+      findAllFeed(page, token).then(findAllFeedResponse);
+      setLoading(false);
     }
     if (token && user.user_id) {
       if (
@@ -256,8 +255,10 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
             setHasMore(false);
           }
         };
-        findMyFeed(page, token).then(findMyFeedResponse);
-        setLoading(false);
+        if (token) {
+          findMyFeed(page, token).then(findMyFeedResponse);
+          setLoading(false);
+        }
       }
       if (
         (location.pathname.includes("mypage") && !likeInitialLoad) ||
@@ -294,7 +295,7 @@ export const FeedProvider = ({ children }: FeedProviderProps) => {
         setLoading(false);
       }
     } else {
-      if (location.pathname !== "/login") setLoading(true);
+      location.pathname === "/login" ? setLoading(false) : setLoading(true);
     }
   }, [location, page, token]);
 

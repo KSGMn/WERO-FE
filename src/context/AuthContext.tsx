@@ -49,7 +49,7 @@ interface AuthContextType {
   deleteUser: (id: DeleteUserRequestDto) => Promise<boolean>;
   userImages: string[];
   setUserImages: (userImages: []) => void;
-  authNavigate: (path: string) => void;
+  authNavigate: (path: string, options?: { state?: any }) => Promise<void>;
 }
 
 export interface ApiUserResponse {
@@ -104,7 +104,7 @@ const initialAuthState: AuthContextType = {
   },
   userImages: [],
   setUserImages: () => {},
-  authNavigate: () => {},
+  authNavigate: async (path: string) => {},
 };
 
 interface AuthProviderProps {
@@ -184,7 +184,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
-  const authNavigate = async (path: string) => {
+  const authNavigate = async (path: string, options?: { state?: any }) => {
     if (isTokenExpired(cookies.accessToken) === true && refreshToken) {
       const requestBody = { refreshToken };
       await getRefreshToken(requestBody).then(refreshResponse);
@@ -227,7 +227,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       };
       getUserImages(token).then(getUserImagesResponse);
     }
-  }, [loading]);
+  }, [isLoggedIn]);
 
   //getUser가 업데이트될 때 user 상태를 설정
   useEffect(() => {
@@ -365,7 +365,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         authNavigate,
       }}
     >
-      {loading ? <div></div> : children}
+      {loading ? <div>asdasdad</div> : children}
     </AuthContext.Provider>
   );
 }

@@ -82,7 +82,7 @@ const SideBar = () => {
                     whiteSpace: "nowrap", // 줄바꿈 방지
                     textOverflow: "ellipsis", // 말줄임표 표시
                   }}
-                  onClick={() => (window.location.pathname = "/mypage")}
+                  onClick={() => authNavigate("/mypage")}
                 >
                   {user.userName}
                 </div>

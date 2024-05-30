@@ -3,6 +3,10 @@
   src: url("../fonts/Cantarell-Bold.ttf") format("truetype");
 }
 
+.main-background {
+  background-image: url("../assets/main-background/R16731_product.jpg");
+}
+
 .add-icon {
   color: black;
   font-size: 15px;

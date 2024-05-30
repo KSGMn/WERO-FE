@@ -40,7 +40,7 @@ const WeRo = () => {
   };
 
   return (
-    <div className="d-flex flex-row" style={{ height: "100vh", width: "auto" }}>
+    <div className="main-background d-flex flex-row" style={{ height: "100vh", width: "auto" }}>
       {!hideComponents && <SideBar />}
       <div className="main-page d-flex flex-column" style={{ flexGrow: "1", overflowY: "auto" }}>
         <div
@@ -80,14 +80,7 @@ const WeRo = () => {
           <Routes>
             <Route path="/" element={<HomeComponent />}>
               <Route path="/read/:id" element={<ReadPostComponent />} />
-              <Route
-                path="/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <ReadPostComponent />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/edit/:id" element={<ReadPostComponent />} />
             </Route>
             <Route path="/search/:query" element={<SearchComponent />}>
               <Route path="read/:id" element={<ReadPostComponent />} />

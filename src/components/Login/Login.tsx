@@ -22,7 +22,7 @@ const Login = () => {
 
   const [message, setMessage] = useState<string>("");
 
-  const { setLoggedIn, setToken, setRefreshToken } = useContext(AuthContext);
+  const { setLoggedIn, setToken, setRefreshToken, setLoading } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
