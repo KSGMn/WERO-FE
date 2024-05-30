@@ -6,7 +6,7 @@ import Modal from "react-modal";
 import { useFeeds } from "../../context/FeedContext";
 
 const ReportsComponent = () => {
-  const { reports, setReports, page, setPage, setIsFetching, setInitialLoad, loading } = useFeeds();
+  const { reports, setReports, page, setPage, setIsFetching, setReportsInitialLoad, loading } = useFeeds();
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
   const [isSuspensionConfirmModalOpen, setIsSuspensionConfirmModalOpen] = useState(false);
   const [selectedMainfeedId, setSelectedMainfeedId] = useState(null);
@@ -44,7 +44,7 @@ const ReportsComponent = () => {
   const handleClick = (pageNumber) => {
     setReports(reports);
     setIsFetching(true);
-    setInitialLoad(false);
+    setReportsInitialLoad(false);
     setPage(pageNumber - 1);
   };
 

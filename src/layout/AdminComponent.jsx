@@ -1,9 +1,11 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useFeeds } from "../context/FeedContext";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const AdminComponent = () => {
   const { setIsFetching, setInitialLoad, setPage } = useFeeds();
-  const navigate = useNavigate();
+  const { authNavigate } = useContext(AuthContext);
 
   const handlePage = (e) => {
     const { name } = e.target;
@@ -14,7 +16,7 @@ const AdminComponent = () => {
     setPage(0);
     setInitialLoad(false);
     setIsFetching(true);
-    navigate(path);
+    authNavigate(path);
   };
 
   return (

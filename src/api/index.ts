@@ -29,6 +29,8 @@ import UpdateDiaryRequestDto from "./request/diary/update-diary.request.dto";
 import UpdateUserRequestDto from "./request/user/update-user.request.dto";
 import DeleteUserRequestDto from "./request/user/delete-user.request.dto";
 import UserPostPictureRequestDto from "./request/user/user-post-picture.request.dto";
+import RefreshTokenRequestDto from "./request/auth/refresh-token.request.dto";
+import RefreshTokenResponseDto from "./response/auth/refresh-token.response.dto";
 
 const responseHandler = <T>(response: AxiosResponse<any, any>) => {
   const responseBody: T = response.data;
@@ -41,8 +43,9 @@ const errorHandler = (error: any) => {
   return responseBody;
 };
 
+
 //const DOMAIN = "http://localhost:8080";
-const DOMAIN = "43.202.243.46:8080";
+const DOMAIN = process.env.REACT_APP_API_DOMAIN;
 const API_DOMAIN = `${DOMAIN}/api/v1`;
 
 //auth api
@@ -55,6 +58,7 @@ const ID_CHECK_URL = () => `${API_DOMAIN}/auth/id-check`;
 const EMAIL_CERTIFICATION_URL = () => `${API_DOMAIN}/auth/email-certification`;
 const CHECK_CERTIFICATION_URL = () => `${API_DOMAIN}/auth/check-certification`;
 const DELETE_USER_URL = () => `${API_DOMAIN}/user/delete`;
+const REFRESH_TOKEN_URL = () => `${API_DOMAIN}/auth/refresh`;
 
 export const signInRequest = async (requestBody: SignInRequestDto) => {
   const result = await axios
@@ -108,6 +112,14 @@ export const deleteUserProfile = async (requestBody: DeleteUserRequestDto) => {
     .then(responseHandler)
     .catch(errorHandler);
   return result as DefaultResponse;
+};
+
+export const getRefreshToken = async (requestBody: RefreshTokenRequestDto) => {
+  const result = await axios
+    .post(REFRESH_TOKEN_URL(), requestBody)
+    .then(responseHandler<RefreshTokenResponseDto>)
+    .catch(errorHandler);
+  return result;
 };
 
 //user profile api
@@ -231,14 +243,17 @@ export const findAllFeed = async (page: number, token: string) => {
   return result as ApiResponse;
 };
 
-export const findMyFeed = async (page: number) => {
+export const findMyFeed = async (page: number, token: string) => {
   const result = await axios
     .get(FIND_MY_FEED_URL(), {
       params: {
         page: page,
         size: 300,
       },
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       withCredentials: true,
     })
     .then(responseHandler)
@@ -246,10 +261,13 @@ export const findMyFeed = async (page: number) => {
   return result as ApiResponse;
 };
 
-export const findOneFeed = async (id: number) => {
+export const findOneFeed = async (id: number, token: string) => {
   const result = await axios
     .get(FIND_ONE_FEED_URL(id), {
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       withCredentials: true,
     })
     .then(responseHandler)
@@ -257,10 +275,13 @@ export const findOneFeed = async (id: number) => {
   return result as ApiOneResponse;
 };
 
-export const findLikeFeed = async () => {
+export const findLikeFeed = async (token: string) => {
   const result = await axios
     .get(FIND_LIKE_FEED_URL(), {
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       withCredentials: true,
     })
     .then(responseHandler)
@@ -301,14 +322,17 @@ export const deleteFeed = async (id: number) => {
   return result as ApiResponse;
 };
 
-export const contentSearchFeed = async (content: string, page: number) => {
+export const contentSearchFeed = async (content: string, page: number, token: string) => {
   const result = await axios
     .get(CONTENT_SEARCH_FEED_URL(content), {
       params: {
         page: page,
         size: 300,
       },
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       withCredentials: true,
     })
     .then(responseHandler)
@@ -331,14 +355,17 @@ export const nonMemberContentSearchFeed = async (content: string, page: number) 
   return result as ApiResponse;
 };
 
-export const categorySearchFeed = async (category: string, page: number) => {
+export const categorySearchFeed = async (category: string, page: number, token: string) => {
   const result = await axios
     .get(CATEGORY_SEARCH_FEED_URL(category), {
       params: {
         page: page,
         size: 300,
       },
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       withCredentials: true,
     })
     .then(responseHandler)
@@ -406,10 +433,13 @@ export const feedReport = async (id: number) => {
 //moody-match api
 export const MOODY_MATCH_FEED_URL = (userId: string) => `${API_DOMAIN}/user/feeds/${userId}/moody-match`;
 
-export const moodyMatchFeed = async (userId: string) => {
+export const moodyMatchFeed = async (userId: string, token: string) => {
   const result = await axios
     .get(MOODY_MATCH_FEED_URL(userId), {
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       withCredentials: true,
     })
     .then(responseHandler)
@@ -425,10 +455,13 @@ export const UPDATE_DIARY_URL = (diaryId: number) => `${API_DOMAIN}/diary/${diar
 export const DELETE_DIARY_URL = (diaryId: number) => `${API_DOMAIN}/diary/${diaryId}`;
 export const DIARY_BOOKMARK_URL = (diaryId: string) => `${API_DOMAIN}/diary/${diaryId}/bookMark`;
 
-export const findAllDiary = async () => {
+export const findAllDiary = async (token: string) => {
   const result = await axios
     .get(FIND_ALL_DIARY_URL(), {
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       withCredentials: true,
     })
     .then(responseHandler)

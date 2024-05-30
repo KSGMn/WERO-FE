@@ -1,7 +1,14 @@
 import { createContext, useState, ReactNode, useEffect, Dispatch, SetStateAction } from "react";
-import { Logout, deleteUserProfile, getUserImages, getUserProfile } from "../api";
+import { Logout, deleteUserProfile, getRefreshToken, getUserImages, getUserProfile } from "../api";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { ResponseBody } from "../types";
+import RefreshTokenResponseDto from "../api/response/auth/refresh-token.response.dto";
+import { ResponseCode } from "../types/enums";
+import { useLocation, useNavigate } from "react-router-dom";
+import RefreshTokenRequestDto from "../api/request/auth/refresh-token.request.dto";
+import { useCookies } from "react-cookie";
+import { jwtDecode } from "jwt-decode";
 
 interface User {
   email: string;
@@ -33,6 +40,8 @@ interface AuthContextType {
   setLoggedIn: (isLoggedIn: boolean) => void;
   token: string | null;
   setToken: Dispatch<SetStateAction<string | null>>;
+  refreshToken: string | null;
+  setRefreshToken: Dispatch<SetStateAction<string | null>>;
   loading: boolean;
   setLoading: (loading: boolean) => void;
   logout: () => Promise<boolean>;
@@ -40,6 +49,7 @@ interface AuthContextType {
   deleteUser: (id: DeleteUserRequestDto) => Promise<boolean>;
   userImages: string[];
   setUserImages: (userImages: []) => void;
+  authNavigate: (path: string) => void;
 }
 
 export interface ApiUserResponse {
@@ -67,6 +77,8 @@ const initialAuthState: AuthContextType = {
   setLoggedIn: () => {},
   token: "",
   setToken: () => {},
+  refreshToken: "",
+  setRefreshToken: () => {},
   loading: false,
   setLoading: () => {},
   logout: async () => {
@@ -92,6 +104,7 @@ const initialAuthState: AuthContextType = {
   },
   userImages: [],
   setUserImages: () => {},
+  authNavigate: () => {},
 };
 
 interface AuthProviderProps {
@@ -107,7 +120,9 @@ export const AuthContext = createContext<AuthContextType>(initialAuthState);
 //export const useUser = () => useContext(AuthContext);
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  const [token, setToken] = useState<string | null>(Cookies.get("accessToken") || null);
+  const [cookies, setCookie, removeCookie] = useCookies(["accessToken", "refreshToken"]);
+  const [token, setToken] = useState<string | null>(cookies.accessToken || null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(cookies.refreshToken || null);
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -125,25 +140,76 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   });
 
   const [userImages, setUserImages] = useState([]);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isTokenExpired = (token: string) => {
+    try {
+      const decoded: { exp: number } = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+      return decoded.exp < currentTime;
+    } catch (error) {
+      return true;
+    }
+  };
+
+  const refreshResponse = (responseBody: ResponseBody<RefreshTokenResponseDto>) => {
+    if (!responseBody) return;
+
+    const { code } = responseBody;
+
+    if (code === "SU") {
+      const { token: newAccessToken } = responseBody as RefreshTokenResponseDto;
+
+      const now = new Date().getTime();
+      const expires = new Date(now + 3600 * 1000);
+      Cookies.set("accessToken", newAccessToken, { expires, path: "/" });
+
+      setToken(newAccessToken);
+    } else {
+      navigate("/");
+    }
+  };
+
+  useEffect(() => {
+    if (isTokenExpired(cookies.accessToken) === true && refreshToken) {
+      const requestBody = { refreshToken };
+      getRefreshToken(requestBody).then(refreshResponse);
+    }
+    if (isTokenExpired(cookies.refreshToken) === true && user.user_id !== "" && isLoggedIn) {
+      alert("세션이 만료되었습니다");
+      logout();
+      navigate("/");
+    }
+  }, []);
+
+  const authNavigate = async (path: string) => {
+    if (isTokenExpired(cookies.accessToken) === true && refreshToken) {
+      const requestBody = { refreshToken };
+      await getRefreshToken(requestBody).then(refreshResponse);
+    }
+    navigate(path);
+  };
+
   useEffect(() => {
     const checkLoginStatus = () => {
       const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-      const token = Cookies.get("accessToken");
 
-      if (!token && isLoggedIn) {
+      if (isTokenExpired(cookies.refreshToken) === true && user.user_id !== "" && isLoggedIn) {
+        alert("세션이 만료되었습니다");
         logout();
+        navigate("/");
       }
-
       if (isLoggedIn && token) {
         setLoggedIn(true);
-        setToken(token);
       } else {
         setLoading(false);
       }
     };
 
     checkLoginStatus();
-  }, [isLoggedIn, token]);
+  }, [cookies.refreshToken]);
 
   useEffect(() => {
     if (token) {
@@ -161,7 +227,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       };
       getUserImages(token).then(getUserImagesResponse);
     }
-  }, [token]);
+  }, [loading]);
 
   //getUser가 업데이트될 때 user 상태를 설정
   useEffect(() => {
@@ -258,7 +324,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
       // 쿠키 삭제
       Cookies.remove("accessToken", { path: "/" }); // 액세스 토큰 삭제
-      //Cookies.remove("refreshToken", { path: "/" }); // 리프레시 토큰 삭제
+      Cookies.remove("refreshToken", { path: "/" }); // 리프레시 토큰 삭제
 
       return true;
     } catch (error) {
@@ -294,6 +360,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         setUserImages,
         token,
         setToken,
+        refreshToken,
+        setRefreshToken,
+        authNavigate,
       }}
     >
       {loading ? <div></div> : children}

@@ -27,14 +27,16 @@ import ProtectedRoute from "../components/ProtectedRoute.jsx";
 import CategoryComponent from "../layout/CategoryComponent.jsx";
 import SearchCategoryComponent from "../layout/SearchCategoryComponent.jsx";
 import { useFeeds } from "../context/FeedContext.tsx";
+import { AuthContext } from "../context/AuthContext.tsx";
+import { useContext } from "react";
 
 const WeRo = () => {
-  const { setPage, setInitialLoad } = useFeeds();
+  const { authNavigate } = useContext(AuthContext);
+  const { setPage } = useFeeds();
   const location = useLocation();
   const hideComponents = location.pathname === "/login" || location.pathname === "/signup";
   const homeBtn = () => {
     setPage(0);
-    setInitialLoad(false);
   };
 
   return (
@@ -110,6 +112,10 @@ const WeRo = () => {
               <Route path="likes" element={<LikeComponent />} />
               <Route path="read/:id" element={<ReadPostComponent />} />
               <Route path="edit/:id" element={<ReadPostComponent />} />
+              <Route path="history/read/:id" element={<ReadPostComponent />} />
+              <Route path="histroy/edit/:id" element={<ReadPostComponent />} />
+              <Route path="likes/read/:id" element={<ReadPostComponent />} />
+              <Route path="likes/edit/:id" element={<ReadPostComponent />} />
               <Route path="prof/update" element={<ProfilePictureUpload />} />
             </Route>
             <Route

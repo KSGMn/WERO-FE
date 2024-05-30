@@ -469,7 +469,7 @@ const Signup = () => {
       </form>
       <label style={{ marginBottom: "20px", marginTop: "20px" }}>SNS 회원가입</label>
       <div className="social-login-btn d-flex flex-row justify-content-around w-50">
-        <LoginButtonCircle serviceName="Google" logo={googleLoginCircle} onClick={handleGoogleLogin} />
+        {/* <LoginButtonCircle serviceName="Google" logo={googleLoginCircle} onClick={handleGoogleLogin} /> */}
         <LoginButtonCircle serviceName="Kakao" logo={kakaoLoginCircle} onClick={onSnsSignInButtonClickHandler} />
         <LoginButtonCircle serviceName="Naver" logo={naverLoginCircle} onClick={onSnsSignInButtonClickHandler} />
       </div>
