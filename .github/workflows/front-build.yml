@@ -25,4 +25,4 @@ jobs:
           aws s3 cp ./ s3://werofrontend/ --recursive
 
       - name: Cloudfront 캐시 무효화
-        run: aws cloudfront create-invalidation --distribution-id {E32HNS1QHTCMX6} --paths "/*"
+        run: aws cloudfront create-invalidation --distribution-id E32HNS1QHTCMX6 --paths "/*"
