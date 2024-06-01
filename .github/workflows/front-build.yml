@@ -1,41 +1,52 @@
-name: Deploy To S3
-
 on:
+  # develop 브랜치에 push가 될 때마다 이 action이 실행됩니다.
   push:
     branches:
-      - main
+      - develop
+    tags:
+      - 'development-**'
 
 jobs:
-  build:
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Checkout source code.   # 레포지토리 체크아웃
-        uses: actions/checkout@v4
+  Deploy:
+    runs-on: ubuntu-latest
 
-      - name: Cache node modules      # node modules 캐싱
-        uses: actions/cache@v1
+    steps:
+      # 1 - 소스코드 복사
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      # 2 - node_modules 캐싱
+      - name: Cache node modules
+        uses: actions/cache@v3
         with:
           path: node_modules
-          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
 
-      - name: Install Dependencies    # 의존 파일 설치
-        run: npm install
+      # 3 - 의존성 패키지 설치
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: yarn install
 
-      - name: Build                   # React Build
-        run: npm run build
+      # 4 - 빌드
+      - name: Build
+        run: yarn build
 
-      - name: Deploy                  # S3에 배포하기
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          aws s3 cp \
-            --recursive \
-            --region ap-northeast-2 \
-            build s3://werofrontend
+      # 5 - AWS 인증
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Cloudfront 캐시 무효화
-        run: aws cloudfront create-invalidation --distribution-id E32HNS1QHTCMX6 --paths "/*"
+      # 6 - AWS S3에 빌드 결과물 배포
+      ## CRA로 생성한 React App은 build 폴더에 빌드 결과물이 들어있습니다. (dist 폴더가 아님!)
+      - name: Deploy to S3
+        run: aws s3 sync ./build s3://${{ secrets.AWS_BUCKET_NAME }} --delete
+
+      # 7 - CloudFront 캐시 무효화
+      - name: Invalidate CloudFront Cache
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*
