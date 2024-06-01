@@ -20,7 +20,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: ${{ runner.OS }}-build-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
@@ -28,11 +28,11 @@ jobs:
       # 3 - 의존성 패키지 설치
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: yarn install
+        run: npm install
 
       # 4 - 빌드
       - name: Build
-        run: npm build
+        run: npm run build
 
       # 5 - AWS 인증
       - name: Configure AWS Credentials
@@ -49,4 +49,4 @@ jobs:
 
       # 7 - CloudFront 캐시 무효화
       - name: Invalidate CloudFront Cache
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*"
