@@ -32,7 +32,7 @@ jobs:
 
       # 4 - 빌드
       - name: Build
-        run: yarn build
+        run: npm build
 
       # 5 - AWS 인증
       - name: Configure AWS Credentials
